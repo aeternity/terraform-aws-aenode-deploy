@@ -13,7 +13,7 @@ commands:
           name: Integration Tests
           command: |
             export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
-            cd test && terraform init && terraform apply -parallelism=20 --auto-approve
+            cd test && terraform init && terraform validate && terraform fmt -check=true -diff=true && terraform apply -parallelism=20 --auto-approve
             cd /infrastructure/ansible && ansible-playbook health-check.yml --limit=tag_envid_${TF_VAR_envid} -e env=test
       - run:
           name: Integration env cleanup
@@ -29,17 +29,6 @@ commands:
           command: echo "source /infrastructure/import-secrets.sh" >> $BASH_ENV
 
 jobs:
-  validate:
-    executor: infrastructure_container
-    steps:
-      - checkout
-      - setup_secrets
-      - run:
-          name: Validate Terraform environments
-          command: |
-            cd terraform/environments && terraform init && terraform validate && terraform fmt -check=true -diff=true
-
-  # Checks the compatibility of latest package build and master bootstrap
   integration_tests:
     executor: infrastructure_container
     steps:
