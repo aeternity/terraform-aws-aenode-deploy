@@ -3,7 +3,7 @@ executors:
   infrastructure_container:
     docker:
       - image: aeternity/infrastructure:Split-terraform-modules-in-separate-repos-PT-165295661
-    working_directory: /infrastructure
+    working_directory: /src
 
 commands:
   integration_tests:
@@ -12,33 +12,38 @@ commands:
       - run:
           name: Integration Tests
           command: |
-            make integration-tests TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
+            export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
+            cd test && terraform init && terraform apply -parallelism=20 --auto-approve
+            cd /infrastructure/ansible && ansible-playbook health-check.yml --limit=tag_envid_${TF_VAR_envid} -e env=test
       - run:
           name: Integration env cleanup
           command: |
-            make integration-tests-cleanup TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
-          when: on_fail
+            export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
+            cd test && terraform destroy -parallelism=20 --auto-approve
+          when: always
 
   setup_secrets:
     steps:
       - run:
           name: Setup Environment
-          command: echo "source import-secrets.sh" >> $BASH_ENV
+          command: echo "source /infrastructure/import-secrets.sh" >> $BASH_ENV
 
 jobs:
   validate:
     executor: infrastructure_container
     steps:
+      - checkout
       - setup_secrets
       - run:
           name: Validate Terraform environments
           command: |
-            make terraform-validate-environments
+            cd terraform/environments && terraform init && terraform validate && terraform fmt -check=true -diff=true
 
   # Checks the compatibility of latest package build and master bootstrap
   integration_tests:
     executor: infrastructure_container
     steps:
+      - checkout
       - setup_secrets
       - integration_tests
 
