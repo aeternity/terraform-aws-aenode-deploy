@@ -1,20 +1,9 @@
 version: 2.1
-
-references:
-  container_config: &container_config
+executors:
+  infrastructure_container:
     docker:
       - image: aeternity/infrastructure:Split-terraform-modules-in-separate-repos-PT-165295661
     working_directory: /infrastructure
-
-  check_terraform_changes: &check_terraform_changes
-    run:
-      name: Fail on Terraform changes
-      command: make check-terraform-changes
-
-  setup_secrets: &setup_secrets
-    run:
-      name: Setup Environment
-      command: echo "source import-secrets.sh" >> $BASH_ENV
 
 commands:
   integration_tests:
@@ -30,33 +19,36 @@ commands:
             make integration-tests-cleanup TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
           when: on_fail
 
-jobs:
-  check_terraform_changes:
-    <<: *container_config
+  setup_secrets:
     steps:
-      - *setup_secrets
       - run:
-          name: Fail on Terraform changes
+          name: Setup Environment
+          command: echo "source import-secrets.sh" >> $BASH_ENV
+
+jobs:
+  validate:
+    executor: infrastructure_container
+    steps:
+      - setup_secrets
+      - run:
+          name: Validate Terraform environments
           command: |
-            make check-terraform-changes
+            make terraform-validate-environments
 
   # Checks the compatibility of latest package build and master bootstrap
   integration_tests:
-    <<: *container_config
+    executor: infrastructure_container
     steps:
-      - *setup_secrets
-      - run:
-          name: Setup integration tests parameters
-          command: |
-            echo "export TF_VAR_bootstrap_version=v2.0.1" >> $BASH_ENV
+      - setup_secrets
       - integration_tests
 
 workflows:
-  check_deploy:
+  test:
     jobs:
-      - check_terraform_changes:
+      - validate:
           requires: []
 
       - integration_tests:
-          requires: []
+          requires:
+            - validate
 
