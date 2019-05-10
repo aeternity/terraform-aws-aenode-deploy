@@ -2,7 +2,7 @@ version: 2.1
 executors:
   infrastructure_container:
     docker:
-      - image: aeternity/infrastructure:Split-terraform-modules-in-separate-repos-PT-165295661
+      - image: aeternity/infrastructure
     working_directory: /src
 
 commands:
@@ -10,23 +10,39 @@ commands:
     description: "Integration Tests"
     steps:
       - run:
-          name: Integration Tests
+          name: Terraform init
           command: |
-            export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
-            cd test && terraform init && terraform validate && terraform fmt -check=true -diff=true && terraform apply -parallelism=20 --auto-approve
-            cd /infrastructure/ansible && ansible-playbook health-check.yml --limit=tag_envid_${TF_VAR_envid} -e env=test
+            cd test && terraform init
       - run:
-          name: Integration env cleanup
+          name: Terraform lint and validate
           command: |
-            export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"
+            cd test && terraform fmt -check=true -diff=true && terraform validate
+      - run:
+          name: Integration environment setup
+          command: |
+            cd test && terraform apply -parallelism=20 --auto-approve
+      - run:
+          name: Integration environment health check
+          command: |
+            ENVID=${TF_VAR_envid:?} ./test/health-check.sh
+      - run:
+          name: Integration environment cleanup
+          command: |
             cd test && terraform destroy -parallelism=20 --auto-approve
           when: always
 
   setup_secrets:
     steps:
       - run:
-          name: Setup Environment
+          name: Setup environment secrets
           command: echo "source /infrastructure/import-secrets.sh" >> $BASH_ENV
+
+  setup_test_environment:
+    steps:
+      - run:
+          name: Setup test environment
+          command: |
+            echo 'export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"' >> $BASH_ENV
 
 jobs:
   integration_tests:
@@ -34,6 +50,7 @@ jobs:
     steps:
       - checkout
       - setup_secrets
+      - setup_test_environment
       - integration_tests
 
 workflows:
@@ -42,4 +59,3 @@ workflows:
       - integration_tests:
           context: ae-infra-manage
           requires: []
-
