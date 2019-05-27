@@ -12,36 +12,41 @@ commands:
       - run:
           name: Terraform init
           command: |
-            cd test && terraform init
+            cd test && envdir /secrets terraform init
       - run:
-          name: Terraform lint and validate
+          name: Terraform format check
           command: |
-            cd test && terraform fmt -check=true -diff=true && terraform validate
+            cd test && terraform fmt -check=true -diff=true
+      - run:
+          name: Terraform validate
+          command: |
+            cd test && terraform validate -var vault_addr=dummy -var envid=dummy
       - run:
           name: Integration environment setup
           command: |
-            cd test && terraform apply -parallelism=20 --auto-approve
+            cd test && envdir /secrets terraform apply -parallelism=20 --auto-approve
       - run:
           name: Integration environment health check
           command: |
-            ENVID=${TF_VAR_envid:?} ./test/health-check.sh
+            ENVID=${TF_VAR_envid:?} envdir /secrets ./test/health-check.sh
       - run:
           name: Integration environment cleanup
           command: |
-            cd test && terraform destroy -parallelism=20 --auto-approve
+            cd test && envdir /secrets terraform destroy -parallelism=20 --auto-approve
           when: always
 
   setup_secrets:
     steps:
       - run:
           name: Setup environment secrets
-          command: echo "source /infrastructure/import-secrets.sh" >> $BASH_ENV
+          command: cd /infrastructure && make secrets SECRETS_OUTPUT_DIR=/secrets
 
   setup_test_environment:
     steps:
       - run:
           name: Setup test environment
           command: |
+            echo 'export TF_VAR_vault_addr="$(</secrets/VAULT_ADDR)"' >> $BASH_ENV
             echo 'export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"' >> $BASH_ENV
 
 jobs:
