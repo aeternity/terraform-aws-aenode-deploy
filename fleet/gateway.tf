@@ -48,6 +48,12 @@ resource "aws_lb_target_group" "gateway" {
   protocol = "HTTP"
   vpc_id   = "${var.vpc_id}"
 
+  stickiness {
+    enabled = "${var.lb_stickiness_enabled}"
+    type = "lb_cookie"
+    cookie_duration = "${var.lb_stickiness_cookie_duration}"
+  }
+
   health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 2
