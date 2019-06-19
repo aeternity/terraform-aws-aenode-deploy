@@ -55,3 +55,11 @@ variable "gateway_dns" {
 variable "user_data_file" {}
 
 variable "spot_user_data_file" {}
+
+variable "lb_stickiness_enabled" {
+  default = false
+}
+
+variable "lb_stickiness_cookie_duration" {
+  default = 86400
+}
