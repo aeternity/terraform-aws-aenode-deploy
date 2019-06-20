@@ -49,8 +49,8 @@ resource "aws_lb_target_group" "gateway" {
   vpc_id   = "${var.vpc_id}"
 
   stickiness {
-    enabled = "${var.lb_stickiness_enabled}"
-    type = "lb_cookie"
+    enabled         = "${var.lb_stickiness_enabled}"
+    type            = "lb_cookie"
     cookie_duration = "${var.lb_stickiness_cookie_duration}"
   }
 
