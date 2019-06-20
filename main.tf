@@ -30,6 +30,9 @@ module "aws_fleet" {
   additional_storage      = "${var.additional_storage}"
   additional_storage_size = "${var.additional_storage_size}"
 
+  lb_stickiness_enabled         = "${var.lb_stickiness_enabled}"
+  lb_stickiness_cookie_duration = "${var.lb_stickiness_cookie_duration}"
+
   aeternity = "${var.aeternity}"
 }
 
