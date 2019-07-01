@@ -7,6 +7,11 @@ resource "aws_lb" "gateway" {
   subnets            = ["${var.subnets}"]
 
   enable_deletion_protection = false
+
+  tags = {
+    kind = "api"
+    env = "${var.env}"
+  }
 }
 
 output "gateway_lb_dns" {
@@ -61,6 +66,11 @@ resource "aws_lb_target_group" "gateway" {
     path                = "/healthz"
     port                = 8080
     interval            = 30
+  }
+
+  tags = {
+    kind = "api"
+    env = "${var.env}"
   }
 }
 
@@ -230,6 +240,12 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-up" {
 
   actions_enabled = true
   alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-up.arn}"]
+
+
+  tags = {
+    kind = "api"
+    env = "${var.env}"
+  }
 }
 
 resource "aws_autoscaling_policy" "gateway-cpu-policy-down" {
@@ -261,4 +277,9 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-down" {
 
   actions_enabled = true
   alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-down.arn}"]
+
+  tags = {
+    kind = "api"
+    env = "${var.env}"
+  }
 }
