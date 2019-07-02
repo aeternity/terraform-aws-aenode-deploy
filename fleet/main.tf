@@ -137,7 +137,7 @@ data "template_file" "spot_user_data" {
 }
 
 resource "aws_autoscaling_group" "spot_fleet" {
-  count                = "${var.spot_nodes > 0 ? 1 : 0 }"
+  count                = "${var.spot_nodes > 0 ? 1 : 0}"
   name                 = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage.name : aws_launch_configuration.spot.name}"
   min_size             = "${var.spot_nodes}"
   max_size             = "${var.spot_nodes}"

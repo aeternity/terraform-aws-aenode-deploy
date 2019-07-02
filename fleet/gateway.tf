@@ -10,7 +10,7 @@ resource "aws_lb" "gateway" {
 
   tags = {
     kind = "api"
-    env = "${var.env}"
+    env  = "${var.env}"
   }
 }
 
@@ -70,7 +70,7 @@ resource "aws_lb_target_group" "gateway" {
 
   tags = {
     kind = "api"
-    env = "${var.env}"
+    env  = "${var.env}"
   }
 }
 
@@ -244,7 +244,7 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-up" {
 
   tags = {
     kind = "api"
-    env = "${var.env}"
+    env  = "${var.env}"
   }
 }
 
@@ -280,6 +280,6 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-down" {
 
   tags = {
     kind = "api"
-    env = "${var.env}"
+    env  = "${var.env}"
   }
 }
