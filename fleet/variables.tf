@@ -56,6 +56,10 @@ variable "user_data_file" {}
 
 variable "spot_user_data_file" {}
 
+variable "websockets_enabled" {
+  default = false
+}
+
 variable "lb_stickiness_enabled" {
   default = false
 }

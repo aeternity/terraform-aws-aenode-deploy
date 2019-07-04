@@ -41,6 +41,18 @@ resource "aws_alb_listener" "gateway-healthz" {
   }
 }
 
+resource "aws_alb_listener" "gateway-ws" {
+  count             = "${var.websockets_enabled ? 1 : 0}"
+  load_balancer_arn = "${aws_lb.gateway.arn}"
+  port              = 3014
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.gateway-ws.arn}"
+  }
+}
+
 resource "aws_lb_target_group" "gateway" {
   count    = "${var.gateway_nodes_min > 0 ? 1 : 0}"
   name     = "ae-${replace(var.env,"_","-")}-gateway"
@@ -70,6 +82,29 @@ resource "aws_lb_target_group" "gateway-healthz" {
   port     = 8080
   protocol = "HTTP"
   vpc_id   = "${var.vpc_id}"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    path                = "/healthz"
+    port                = 8080
+    interval            = 30
+  }
+}
+
+resource "aws_lb_target_group" "gateway-ws" {
+  count    = "${var.websockets_enabled ? 1 : 0}"
+  name     = "ae-${replace(var.env,"_","-")}-gateway-ws"
+  port     = 3014
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
+
+  stickiness {
+    enabled         = "${var.lb_stickiness_enabled}"
+    type            = "lb_cookie"
+    cookie_duration = "${var.lb_stickiness_cookie_duration}"
+  }
 
   health_check {
     healthy_threshold   = 2
@@ -136,7 +171,11 @@ resource "aws_autoscaling_group" "gateway" {
   launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.gateway-with-additional-storage.name : aws_launch_configuration.gateway.name}"
   vpc_zone_identifier  = ["${var.subnets}"]
 
-  target_group_arns = ["${aws_lb_target_group.gateway.arn}", "${aws_lb_target_group.gateway-healthz.arn}"]
+  target_group_arns = [
+    "${aws_lb_target_group.gateway.arn}",
+    "${aws_lb_target_group.gateway-healthz.arn}",
+    "${aws_lb_target_group.gateway-ws.arn}",
+  ]
 
   enabled_metrics = [
     "GroupMinSize",

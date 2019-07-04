@@ -43,6 +43,16 @@ resource "aws_security_group_rule" "healthz_protocol_port" {
   security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
 }
 
+resource "aws_security_group_rule" "ws_protocol_port" {
+  count             = "${var.websockets_enabled ? 1 : 0}"
+  type              = "ingress"
+  from_port         = 3014
+  to_port           = 3014
+  protocol          = "TCP"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
+}
+
 resource "aws_security_group" "ae-gateway-nodes" {
   count = "${var.gateway_nodes_min > 0 ? 1 : 0}"
   name  = "ae-${var.env}-gateway-nodes"
