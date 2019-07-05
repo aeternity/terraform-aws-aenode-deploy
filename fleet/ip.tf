@@ -3,6 +3,7 @@ resource "aws_eip" "ip" {
 
   tags = {
     Name = "${var.env}"
+    env  = "${var.env}"
   }
 }
 

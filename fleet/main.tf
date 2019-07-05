@@ -54,13 +54,6 @@ resource "aws_ebs_volume" "ebs" {
   tags {
     Name              = "ae-${var.env}-static-node"
     env               = "${var.env}"
-    role              = "aenode"
-    color             = "${var.color}"
-    kind              = "seed"
-    package           = "${var.aeternity["package"]}"
-    bootstrap_version = "${var.bootstrap_version}"
-    vault_addr        = "${var.vault_addr}"
-    vault_role        = "${var.vault_role}"
   }
 }
 
@@ -144,14 +137,13 @@ data "template_file" "spot_user_data" {
 }
 
 resource "aws_autoscaling_group" "spot_fleet" {
-  count                = "${ var.spot_nodes > 0 ? 1 : 0 }"
+  count                = "${var.spot_nodes > 0 ? 1 : 0}"
   name                 = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage.name : aws_launch_configuration.spot.name}"
   min_size             = "${var.spot_nodes}"
   max_size             = "${var.spot_nodes}"
   launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage.name : aws_launch_configuration.spot.name}"
   vpc_zone_identifier  = ["${var.subnets}"]
 
-  #  suspended_processes  = ["Terminate"]
   termination_policies = ["OldestInstance"]
 
   lifecycle {
