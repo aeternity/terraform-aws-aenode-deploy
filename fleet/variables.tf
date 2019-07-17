@@ -1,16 +1,23 @@
 variable "static_nodes" {}
 
-variable "spot_nodes" {}
-
-variable "additional_storage" {
+variable "spot_nodes" {
   default = 0
 }
 
+variable "spot_nodes_min" {
+  default = 0
+}
+
+variable "spot_nodes_max" {
+  default = 0
+}
+
+variable "additional_storage" {
+  type = bool
+  default = false
+}
+
 variable "additional_storage_size" {}
-
-variable "gateway_nodes_min" {}
-
-variable "gateway_nodes_max" {}
 
 variable "color" {}
 
@@ -29,7 +36,7 @@ variable "spot_price" {}
 variable "vpc_id" {}
 
 variable "subnets" {
-  type = "list"
+  type = list
 }
 
 variable "aeternity" {
@@ -44,22 +51,18 @@ variable "vault_role" {}
 
 variable "root_volume_size" {}
 
-variable "dns_zone" {
-  default = ""
-}
-
-variable "gateway_dns" {
-  default = ""
-}
-
 variable "user_data_file" {}
 
-variable "spot_user_data_file" {}
-
-variable "lb_stickiness_enabled" {
+variable enable_state_channels {
+  type    = bool
   default = false
 }
 
-variable "lb_stickiness_cookie_duration" {
-  default = 86400
+variable enable_internal_api {
+  type    = bool
+  default = false
+}
+
+variable asg_target_groups {
+  type = list
 }

@@ -14,16 +14,17 @@ variable "spot_nodes" {
   default = 0
 }
 
-variable "gateway_nodes_min" {
+variable "spot_nodes_min" {
   default = 0
 }
 
-variable "gateway_nodes_max" {
+variable "spot_nodes_max" {
   default = 0
 }
 
 variable "additional_storage" {
-  default = 0
+  type    = bool
+  default = false
 }
 
 variable "additional_storage_size" {
@@ -42,16 +43,6 @@ variable "aeternity" {
   type = "map"
 }
 
-# Module to module depens_on workaround
-# See https://github.com/hashicorp/terraform/issues/1178#issuecomment-105613781
-# See https://github.com/hashicorp/terraform/issues/10462#issuecomment-285751349
-# See https://github.com/hashicorp/terraform/issues/17101
-variable "depends_on" {
-  default = []
-
-  type = "list"
-}
-
 variable "ami_name" {}
 
 variable "vault_addr" {}
@@ -64,27 +55,21 @@ variable "root_volume_size" {
   default     = 8
 }
 
-variable "dns_zone" {
-  default = ""
-}
-
-variable "gateway_dns" {
-  default = ""
-}
-
 variable "user_data_file" {
   default = "user_data.bash"
 }
 
-variable "spot_user_data_file" {
-  default = "user_data.bash"
-}
-
-# Exopose fleet module vars
-variable "lb_stickiness_enabled" {
+variable enable_state_channels {
+  type    = bool
   default = false
 }
 
-variable "lb_stickiness_cookie_duration" {
-  default = 86400
+variable enable_internal_api {
+  type    = bool
+  default = false
+}
+
+variable asg_target_groups {
+  type    = list
+  default = []
 }

@@ -1,3 +1,7 @@
+data "aws_region" "current" {}
+
+data "aws_availability_zones" "available" {}
+
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -5,10 +9,6 @@ resource "aws_vpc" "vpc" {
     Name = "${var.env}"
   }
 }
-
-data "aws_region" "current" {}
-
-data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "subnet" {
   vpc_id                  = "${aws_vpc.vpc.id}"
@@ -20,14 +20,6 @@ resource "aws_subnet" "subnet" {
   tags = {
     Name = "${var.env}-${element(split(",",lookup(var.availability_zones, data.aws_region.current.name)), count.index)}"
   }
-}
-
-output "subnets" {
-  value = "${aws_subnet.subnet.*.id}"
-}
-
-output "vpc_id" {
-  value = "${aws_vpc.vpc.id}"
 }
 
 resource "aws_internet_gateway" "ig" {
