@@ -1,59 +1,38 @@
 module "aws_vpc" {
-  source = "vpc"
+  source = "./vpc"
   env    = "${var.env}"
 }
 
 module "aws_fleet" {
-  source              = "fleet"
-  color               = "${var.color}"
-  env                 = "${var.env}"
-  bootstrap_version   = "${var.bootstrap_version}"
-  vpc_id              = "${module.aws_vpc.vpc_id}"
-  subnets             = "${module.aws_vpc.subnets}"
-  spot_price          = "${var.spot_price}"
-  instance_type       = "${var.instance_type}"
-  ami_name            = "${var.ami_name}"
-  root_volume_size    = "${var.root_volume_size}"
-  vault_addr          = "${var.vault_addr}"
-  vault_role          = "${var.vault_role}"
-  user_data_file      = "${var.user_data_file}"
-  spot_user_data_file = "${var.user_data_file}"
+  source = "./fleet"
+  color  = "${var.color}"
+  env    = "${var.env}"
+  envid  = "${var.envid}"
 
-  spot_nodes        = "${var.spot_nodes}"
-  static_nodes      = "${var.static_nodes}"
-  gateway_nodes_min = "${var.gateway_nodes_min}"
-  gateway_nodes_max = "${var.gateway_nodes_max}"
-  dns_zone          = "${var.dns_zone}"
-  gateway_dns       = "${var.gateway_dns}"
-  envid             = "${var.envid}"
+  vpc_id  = "${module.aws_vpc.vpc_id}"
+  subnets = "${module.aws_vpc.subnets}"
 
+  instance_type = "${var.instance_type}"
+  ami_name      = "${var.ami_name}"
+  spot_price    = "${var.spot_price}"
+
+  vault_addr = "${var.vault_addr}"
+  vault_role = "${var.vault_role}"
+
+  bootstrap_version = "${var.bootstrap_version}"
+  user_data_file    = "${var.user_data_file}"
+
+  static_nodes   = "${var.static_nodes}"
+  spot_nodes     = "${var.spot_nodes}"
+  spot_nodes_min = "${var.spot_nodes_min}"
+  spot_nodes_max = "${var.spot_nodes_max}"
+
+  root_volume_size        = "${var.root_volume_size}"
   additional_storage      = "${var.additional_storage}"
   additional_storage_size = "${var.additional_storage_size}"
 
-  lb_stickiness_enabled         = "${var.lb_stickiness_enabled}"
-  lb_stickiness_cookie_duration = "${var.lb_stickiness_cookie_duration}"
-
-  aeternity = "${var.aeternity}"
-}
-
-output "gateway_lb_dns" {
-  value = "${module.aws_fleet.gateway_lb_dns}"
-}
-
-output "gateway_lb_zone_id" {
-  value = "${module.aws_fleet.gateway_lb_zone_id}"
-}
-
-# Module to module depens_on workaround
-# See https://github.com/hashicorp/terraform/issues/1178#issuecomment-105613781
-# See https://github.com/hashicorp/terraform/issues/10462#issuecomment-285751349
-# See https://github.com/hashicorp/terraform/issues/17101
-resource "null_resource" "dummy_dependency" {
-  triggers {
-    depends_on = "${join(",", var.depends_on)}"
-  }
-}
-
-output "static_node_ips" {
-  value = "${module.aws_fleet.static_node_ips}"
+  aeternity             = "${var.aeternity}"
+  enable_internal_api   = "${var.enable_internal_api}"
+  enable_state_channels = "${var.enable_state_channels}"
+  asg_target_groups     = "${var.asg_target_groups}"
 }
