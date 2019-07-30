@@ -3,8 +3,8 @@ resource "aws_lb" "gateway" {
   name               = "ae-${replace(var.env,"_","-")}-gateway"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = ["${aws_security_group.ae-gateway-nodes-loadbalancer.id}"]
-  subnets            = ["${var.subnets}"]
+  security_groups    = ["${aws_security_group.ae-gateway-nodes-loadbalancer[0].id}"]
+  subnets            = "${var.subnets}"
 
   enable_deletion_protection = false
 }
@@ -19,25 +19,25 @@ output "gateway_lb_zone_id" {
 
 resource "aws_alb_listener" "gateway" {
   count             = "${var.gateway_nodes_min > 0 ? 1 : 0}"
-  load_balancer_arn = "${aws_lb.gateway.arn}"
+  load_balancer_arn = "${aws_lb.gateway[0].arn}"
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${aws_lb_target_group.gateway.arn}"
+    target_group_arn = "${aws_lb_target_group.gateway[0].arn}"
   }
 }
 
 resource "aws_alb_listener" "gateway-healthz" {
   count             = "${var.gateway_nodes_min > 0 ? 1 : 0}"
-  load_balancer_arn = "${aws_lb.gateway.arn}"
+  load_balancer_arn = "${aws_lb.gateway[0].arn}"
   port              = 8080
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${aws_lb_target_group.gateway-healthz.arn}"
+    target_group_arn = "${aws_lb_target_group.gateway-healthz[0].arn}"
   }
 }
 
@@ -88,7 +88,7 @@ resource "aws_launch_configuration" "gateway" {
   image_id             = "${data.aws_ami.ami.id}"
   instance_type        = "${var.instance_type}"
   spot_price           = "${var.spot_price}"
-  security_groups      = ["${aws_security_group.ae-gateway-nodes.id}", "${aws_security_group.ae-nodes-management.id}"]
+  security_groups      = ["${aws_security_group.ae-gateway-nodes[0].id}", "${aws_security_group.ae-nodes-management.id}"]
 
   root_block_device {
     volume_type = "gp2"
@@ -109,7 +109,7 @@ resource "aws_launch_configuration" "gateway-with-additional-storage" {
   image_id             = "${data.aws_ami.ami.id}"
   instance_type        = "${var.instance_type}"
   spot_price           = "${var.spot_price}"
-  security_groups      = ["${aws_security_group.ae-gateway-nodes.id}", "${aws_security_group.ae-nodes-management.id}"]
+  security_groups      = ["${aws_security_group.ae-gateway-nodes[0].id}", "${aws_security_group.ae-nodes-management.id}"]
 
   root_block_device {
     volume_type = "gp2"
@@ -130,13 +130,13 @@ resource "aws_launch_configuration" "gateway-with-additional-storage" {
 
 resource "aws_autoscaling_group" "gateway" {
   count                = "${var.gateway_nodes_min > 0 ? 1 : 0}"
-  name                 = "${var.additional_storage > 0 ? aws_launch_configuration.gateway-with-additional-storage.name : aws_launch_configuration.gateway.name}"
+  name                 = "${var.additional_storage > 0 ? aws_launch_configuration.gateway-with-additional-storage[0].name : aws_launch_configuration.gateway[0].name}"
   min_size             = "${var.gateway_nodes_min}"
   max_size             = "${var.gateway_nodes_max}"
-  launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.gateway-with-additional-storage.name : aws_launch_configuration.gateway.name}"
-  vpc_zone_identifier  = ["${var.subnets}"]
+  launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.gateway-with-additional-storage[0].name : aws_launch_configuration.gateway[0].name}"
+  vpc_zone_identifier  = "${var.subnets}"
 
-  target_group_arns = ["${aws_lb_target_group.gateway.arn}", "${aws_lb_target_group.gateway-healthz.arn}"]
+  target_group_arns = ["${aws_lb_target_group.gateway[0].arn}", "${aws_lb_target_group.gateway-healthz[0].arn}"]
 
   enabled_metrics = [
     "GroupMinSize",
@@ -205,7 +205,7 @@ resource "aws_autoscaling_group" "gateway" {
 resource "aws_autoscaling_policy" "gateway-cpu-policy-up" {
   count                  = "${var.gateway_nodes_min > 0 ? 1 : 0}"
   name                   = "ae-${var.env}-gateway-cpu-up"
-  autoscaling_group_name = "${aws_autoscaling_group.gateway.name}"
+  autoscaling_group_name = "${aws_autoscaling_group.gateway[0].name}"
   adjustment_type        = "ChangeInCapacity"
   scaling_adjustment     = "1"
   cooldown               = "300"
@@ -225,18 +225,18 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-up" {
   threshold           = "30"
 
   dimensions = {
-    "AutoScalingGroupName" = "${aws_autoscaling_group.gateway.name}"
+    "AutoScalingGroupName" = "${aws_autoscaling_group.gateway[0].name}"
   }
 
   actions_enabled = true
-  alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-up.arn}"]
+  alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-up[0].arn}"]
 }
 
 resource "aws_autoscaling_policy" "gateway-cpu-policy-down" {
   count = "${var.gateway_nodes_min > 0 ? 1 : 0}"
   name  = "ae-${var.env}-gateway-cpu-down"
 
-  autoscaling_group_name = "${aws_autoscaling_group.gateway.name}"
+  autoscaling_group_name = "${aws_autoscaling_group.gateway[0].name}"
   adjustment_type        = "ChangeInCapacity"
   scaling_adjustment     = "-1"
   cooldown               = "300"
@@ -256,9 +256,9 @@ resource "aws_cloudwatch_metric_alarm" "gateway-cpu-alarm-down" {
   threshold           = "5"
 
   dimensions = {
-    "AutoScalingGroupName" = "${aws_autoscaling_group.gateway.name}"
+    "AutoScalingGroupName" = "${aws_autoscaling_group.gateway[0].name}"
   }
 
   actions_enabled = true
-  alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-down.arn}"]
+  alarm_actions   = ["${aws_autoscaling_policy.gateway-cpu-policy-down[0].arn}"]
 }

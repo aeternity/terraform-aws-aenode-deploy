@@ -19,7 +19,7 @@ variable "package" {
 }
 
 provider "aws" {
-  version                 = "1.55"
+  version                 = "2.19"
   region                  = "ap-southeast-2"
   alias                   = "ap-southeast-2"
   shared_credentials_file = "/aws/credentials"

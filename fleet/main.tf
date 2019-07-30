@@ -23,7 +23,7 @@ resource "aws_instance" "static_node" {
     volume_size = "${var.root_volume_size}"
   }
 
-  tags {
+  tags = {
     Name              = "ae-${var.env}-static-node"
     env               = "${var.env}"
     envid             = "${var.envid}"
@@ -39,7 +39,7 @@ resource "aws_instance" "static_node" {
   user_data = "${data.template_file.user_data.rendered}"
 
   subnet_id              = "${element( var.subnets, 1)}"
-  vpc_security_group_ids = ["${aws_security_group.ae-nodes.id}", "${aws_security_group.ae-nodes-management.id}"]
+  vpc_security_group_ids = ["${aws_security_group.ae-nodes[0].id}", "${aws_security_group.ae-nodes-management.id}"]
 
   lifecycle {
     create_before_destroy = true
@@ -51,7 +51,7 @@ resource "aws_ebs_volume" "ebs" {
   availability_zone = "${element(aws_instance.static_node.*.availability_zone, count.index)}"
   size              = "${var.additional_storage_size}"
 
-  tags {
+  tags = {
     Name              = "ae-${var.env}-static-node"
     env               = "${var.env}"
     role              = "aenode"
@@ -90,7 +90,7 @@ resource "aws_launch_configuration" "spot" {
   image_id             = "${data.aws_ami.ami.id}"
   instance_type        = "${var.instance_type}"
   spot_price           = "${var.spot_price}"
-  security_groups      = ["${aws_security_group.ae-nodes.id}", "${aws_security_group.ae-nodes-management.id}"]
+  security_groups      = ["${aws_security_group.ae-nodes[0].id}", "${aws_security_group.ae-nodes-management.id}"]
 
   root_block_device {
     volume_type = "gp2"
@@ -111,7 +111,7 @@ resource "aws_launch_configuration" "spot-with-additional-storage" {
   image_id             = "${data.aws_ami.ami.id}"
   instance_type        = "${var.instance_type}"
   spot_price           = "${var.spot_price}"
-  security_groups      = ["${aws_security_group.ae-nodes.id}", "${aws_security_group.ae-nodes-management.id}"]
+  security_groups      = ["${aws_security_group.ae-nodes[0].id}", "${aws_security_group.ae-nodes-management.id}"]
 
   root_block_device {
     volume_type = "gp2"
@@ -145,11 +145,11 @@ data "template_file" "spot_user_data" {
 
 resource "aws_autoscaling_group" "spot_fleet" {
   count                = "${ var.spot_nodes > 0 ? 1 : 0 }"
-  name                 = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage.name : aws_launch_configuration.spot.name}"
+  name                 = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage[0].name : aws_launch_configuration.spot[0].name}"
   min_size             = "${var.spot_nodes}"
   max_size             = "${var.spot_nodes}"
-  launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage.name : aws_launch_configuration.spot.name}"
-  vpc_zone_identifier  = ["${var.subnets}"]
+  launch_configuration = "${var.additional_storage > 0 ? aws_launch_configuration.spot-with-additional-storage[0].name : aws_launch_configuration.spot[0].name}"
+  vpc_zone_identifier  = "${var.subnets}"
 
   #  suspended_processes  = ["Terminate"]
   termination_policies = ["OldestInstance"]

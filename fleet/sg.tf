@@ -20,8 +20,8 @@ resource "aws_security_group_rule" "allow_all_internal" {
   to_port   = 65535
   protocol  = "TCP"
 
-  security_group_id        = "${aws_security_group.ae-nodes.id}"
-  source_security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id        = "${aws_security_group.ae-nodes[0].id}"
+  source_security_group_id = "${aws_security_group.ae-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "external_api_port" {
@@ -31,7 +31,7 @@ resource "aws_security_group_rule" "external_api_port" {
   to_port           = 3015
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = "${aws_security_group.ae-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "external_healthz_port" {
@@ -41,7 +41,7 @@ resource "aws_security_group_rule" "external_healthz_port" {
   to_port           = 8080
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = "${aws_security_group.ae-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "sync_protocol_port" {
@@ -51,7 +51,7 @@ resource "aws_security_group_rule" "sync_protocol_port" {
   to_port           = 3015
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = "${aws_security_group.ae-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "allow_outgoing-node" {
@@ -61,7 +61,7 @@ resource "aws_security_group_rule" "allow_outgoing-node" {
   to_port           = 65535
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = "${aws_security_group.ae-nodes[0].id}"
 }
 
 resource "aws_security_group" "ae-nodes-management" {
