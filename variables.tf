@@ -42,14 +42,14 @@ variable "aeternity" {
   type = "map"
 }
 
-# Module to module depens_on workaround
+# Module to module dependency workaround
 # See https://github.com/hashicorp/terraform/issues/1178#issuecomment-105613781
 # See https://github.com/hashicorp/terraform/issues/10462#issuecomment-285751349
 # See https://github.com/hashicorp/terraform/issues/17101
-variable "depends_on" {
+variable "dependency" {
   default = []
 
-  type = "list"
+  type = list(string)
 }
 
 variable "ami_name" {}

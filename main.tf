@@ -1,10 +1,10 @@
 module "aws_vpc" {
-  source = "vpc"
+  source = "./vpc"
   env    = "${var.env}"
 }
 
 module "aws_fleet" {
-  source              = "fleet"
+  source              = "./fleet"
   color               = "${var.color}"
   env                 = "${var.env}"
   bootstrap_version   = "${var.bootstrap_version}"
@@ -44,13 +44,13 @@ output "gateway_lb_zone_id" {
   value = "${module.aws_fleet.gateway_lb_zone_id}"
 }
 
-# Module to module depens_on workaround
+# Module to module dependency workaround
 # See https://github.com/hashicorp/terraform/issues/1178#issuecomment-105613781
 # See https://github.com/hashicorp/terraform/issues/10462#issuecomment-285751349
 # See https://github.com/hashicorp/terraform/issues/17101
 resource "null_resource" "dummy_dependency" {
-  triggers {
-    depends_on = "${join(",", var.depends_on)}"
+  triggers = {
+    depends_on = "${join(",", var.dependency)}"
   }
 }
 

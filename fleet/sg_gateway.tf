@@ -20,7 +20,7 @@ resource "aws_security_group_rule" "allow_outgoing-node-gateway" {
   to_port           = 65535
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "http_protocol_port" {
@@ -30,7 +30,7 @@ resource "aws_security_group_rule" "http_protocol_port" {
   to_port           = 80
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer[0].id}"
 }
 
 resource "aws_security_group_rule" "healthz_protocol_port" {
@@ -40,7 +40,7 @@ resource "aws_security_group_rule" "healthz_protocol_port" {
   to_port           = 8080
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer[0].id}"
 }
 
 resource "aws_security_group" "ae-gateway-nodes" {
@@ -66,7 +66,7 @@ resource "aws_security_group_rule" "allow_outgoing-node-lb" {
   to_port           = 65535
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer[0].id}"
 }
 
 resource "aws_security_group_rule" "allow_all_internal_gateway_nodes" {
@@ -76,8 +76,8 @@ resource "aws_security_group_rule" "allow_all_internal_gateway_nodes" {
   to_port   = 65535
   protocol  = "TCP"
 
-  security_group_id        = "${aws_security_group.ae-gateway-nodes.id}"
-  source_security_group_id = "${aws_security_group.ae-gateway-nodes.id}"
+  security_group_id        = "${aws_security_group.ae-gateway-nodes[0].id}"
+  source_security_group_id = "${aws_security_group.ae-gateway-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "external_gateway_healthz_port" {
@@ -87,7 +87,7 @@ resource "aws_security_group_rule" "external_gateway_healthz_port" {
   to_port           = 8080
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "external_sync_port" {
@@ -97,7 +97,7 @@ resource "aws_security_group_rule" "external_sync_port" {
   to_port           = 3015
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-gateway-nodes.id}"
+  security_group_id = "${aws_security_group.ae-gateway-nodes[0].id}"
 }
 
 resource "aws_security_group_rule" "external_api_port_lb" {
@@ -106,6 +106,6 @@ resource "aws_security_group_rule" "external_api_port_lb" {
   from_port                = 3013
   to_port                  = 3013
   protocol                 = "TCP"
-  security_group_id        = "${aws_security_group.ae-gateway-nodes.id}"
-  source_security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer.id}"
+  security_group_id        = "${aws_security_group.ae-gateway-nodes[0].id}"
+  source_security_group_id = "${aws_security_group.ae-gateway-nodes-loadbalancer[0].id}"
 }
