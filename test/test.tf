@@ -19,6 +19,8 @@ module "aws_deploy-test" {
   additional_storage      = true
   additional_storage_size = 5
 
+  snapshot_filename = "mnesia_uat_v-1_latest.tgz"
+
   aeternity = {
     package = "${var.package}"
   }

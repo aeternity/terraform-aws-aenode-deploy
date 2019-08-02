@@ -73,3 +73,7 @@ variable asg_target_groups {
   type    = list
   default = []
 }
+
+variable snapshot_filename {
+  default = ""
+}
