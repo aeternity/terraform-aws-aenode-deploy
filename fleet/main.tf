@@ -173,7 +173,7 @@ resource "aws_autoscaling_group" "spot_fleet" {
     },
     {
       key                 = "envid"
-      value               = var.envid
+      value               = coalesce(var.envid, var.env)
       propagate_at_launch = true
     },
     {
