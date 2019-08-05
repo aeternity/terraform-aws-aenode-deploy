@@ -68,5 +68,4 @@ variable asg_target_groups {
 }
 
 variable snapshot_filename {
-  default = ""
 }

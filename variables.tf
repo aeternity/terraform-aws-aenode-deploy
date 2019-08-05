@@ -73,7 +73,8 @@ variable asg_target_groups {
   type    = list
   default = []
 }
-
+# Some resources do not accept empty tags and Terraform would fail otherwise
+# This is workaround string that should be interpreted as not set in the bootstrap
 variable snapshot_filename {
-  default = ""
+  default = "empty"
 }
