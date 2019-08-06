@@ -66,3 +66,6 @@ variable enable_internal_api {
 variable asg_target_groups {
   type = list
 }
+
+variable snapshot_filename {
+}
