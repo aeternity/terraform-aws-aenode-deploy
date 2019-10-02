@@ -66,7 +66,7 @@ variable enable_state_channels {
 
 variable enable_internal_api {
   type    = bool
-  default = false
+  default = true
 }
 
 variable asg_target_groups {
