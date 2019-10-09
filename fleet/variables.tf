@@ -69,3 +69,7 @@ variable asg_target_groups {
 
 variable snapshot_filename {
 }
+
+variable "node_config" {
+  default = ""
+}
