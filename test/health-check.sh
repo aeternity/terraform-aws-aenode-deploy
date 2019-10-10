@@ -29,6 +29,9 @@ health_check () {
 }
 
 export -f health_check
-IPS=$(aws ec2 describe-instances --filters "Name=tag:envid,Values=${ENVID:?}" |jq -r '.Reservations[].Instances[].PublicIpAddress')
+IPS=$(aws ec2 describe-instances \
+ --query 'Reservations[*].Instances[*].PublicIpAddress' \
+ --filters Name=tag:envid,Values=${ENVID:?} Name=instance-state-code,Values=0,16 \
+ --output text)
 test -n "$IPS" || (echo "No instances found with envid: ${ENVID} in ${AWS_DEFAULT_REGION} region" >&2; exit 1)
 echo "$IPS" | xargs -n 1 -I '{IP}' bash -c 'health_check "{IP}"'
