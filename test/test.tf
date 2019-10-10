@@ -17,9 +17,7 @@ module "aws_deploy-test" {
   ami_name      = "aeternity-ubuntu-16.04-*"
 
   additional_storage      = true
-  additional_storage_size = 50
-
-  snapshot_filename = "mnesia_uat_v-1_latest.tgz"
+  additional_storage_size = 5
 
   aeternity = {
     package = "${var.package}"
