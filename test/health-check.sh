@@ -16,15 +16,15 @@ health_check () {
 
     # Internal API (dry-run)
     EXT_STATUS=$(curl -sS -o /dev/null --retry 8 --retry-connrefused \
-        -X POST -H "Content-type: application/json" -d "{}" \
+        -X POST -H "Content-type: application/json" -d '{"txs": []}' \
         -w "%{http_code}" \
         http://${API_ADDR}:3113/v2/debug/transactions/dry-run)
-    [ $EXT_STATUS -eq 400 ]
+    [ $EXT_STATUS -eq 200 ]
 
     # State Channels WebSocket API
     WS_STATUS=$(curl -sS -o /dev/null --retry 8 --retry-connrefused \
         -w "%{http_code}" \
-        http://${API_ADDR}:3014/channel)
+        http://${API_ADDR}:3014/channel?role=initiator)
     [ $WS_STATUS -eq 426 ]
 }
 
