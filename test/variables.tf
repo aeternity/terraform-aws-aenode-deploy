@@ -11,7 +11,7 @@ variable "envid" {
 }
 
 variable "bootstrap_version" {
-  default = "vault-config"
+  default = "master"
 }
 
 variable "package" {
