@@ -16,19 +16,22 @@ health_check () {
 
     # Internal API (dry-run)
     EXT_STATUS=$(curl -sS -o /dev/null --retry 8 --retry-connrefused \
-        -X POST -H "Content-type: application/json" -d "{}" \
+        -X POST -H "Content-type: application/json" -d '{"txs": []}' \
         -w "%{http_code}" \
         http://${API_ADDR}:3113/v2/debug/transactions/dry-run)
-    [ $EXT_STATUS -eq 400 ]
+    [ $EXT_STATUS -eq 200 ]
 
     # State Channels WebSocket API
     WS_STATUS=$(curl -sS -o /dev/null --retry 8 --retry-connrefused \
         -w "%{http_code}" \
-        http://${API_ADDR}:3014/channel)
+        http://${API_ADDR}:3014/channel?role=initiator)
     [ $WS_STATUS -eq 426 ]
 }
 
 export -f health_check
-IPS=$(aws ec2 describe-instances --filters "Name=tag:envid,Values=${ENVID:?}" |jq -r '.Reservations[].Instances[].PublicIpAddress')
+IPS=$(aws ec2 describe-instances \
+ --query 'Reservations[*].Instances[*].PublicIpAddress' \
+ --filters Name=tag:envid,Values=${ENVID:?} Name=instance-state-code,Values=0,16 \
+ --output text)
 test -n "$IPS" || (echo "No instances found with envid: ${ENVID} in ${AWS_DEFAULT_REGION} region" >&2; exit 1)
 echo "$IPS" | xargs -n 1 -I '{IP}' bash -c 'health_check "{IP}"'

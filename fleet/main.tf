@@ -1,5 +1,6 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
+  node_config = var.node_config != "" ? var.node_config : "secret/aenode/config/${var.env}"
 }
 
 data "aws_region" "current" {}
@@ -33,6 +34,7 @@ resource "aws_instance" "static_node" {
   tags = {
     Name              = "ae-${var.env}-static-node"
     env               = "${var.env}"
+    node_config       = local.node_config
     envid             = var.envid
     role              = "aenode"
     color             = "${var.color}"
@@ -132,7 +134,6 @@ resource "aws_launch_configuration" "spot-with-additional-storage" {
 }
 
 resource "aws_autoscaling_group" "spot_fleet" {
-
   count                = "${var.spot_nodes_min > 0 ? 1 : 0}"
   name_prefix          = "ae-${var.env}-spot-nodes-"
   min_size             = "${max(var.spot_nodes_min, var.spot_nodes)}"
@@ -170,6 +171,11 @@ resource "aws_autoscaling_group" "spot_fleet" {
     {
       key                 = "env"
       value               = "${var.env}"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "node_config"
+      value               = local.node_config
       propagate_at_launch = true
     },
     {
