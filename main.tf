@@ -19,6 +19,8 @@ module "aws_fleet" {
   vault_addr = "${var.vault_addr}"
   vault_role = "${var.vault_role}"
 
+  node_config = "${var.node_config}"
+
   bootstrap_version = "${var.bootstrap_version}"
   user_data_file    = "${var.user_data_file}"
   snapshot_filename = "${var.snapshot_filename}"
