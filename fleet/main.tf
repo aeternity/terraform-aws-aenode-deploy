@@ -1,6 +1,6 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
-  node_config = var.node_config != "" ? var.node_config : "secret/aenode/config/${var.env}"
+  node_config = coalesce(var.node_config, "secret/aenode/config/${var.env}")
 }
 
 data "aws_region" "current" {}
@@ -38,7 +38,7 @@ resource "aws_instance" "static_node" {
     envid             = var.envid
     role              = "aenode"
     color             = "${var.color}"
-    kind              = "seed"
+    kind              = coalesce(var.kind, "seed")
     package           = "${var.aeternity["package"]}"
     bootstrap_version = "${var.bootstrap_version}"
     snapshot_filename = "${var.snapshot_filename}"
@@ -165,7 +165,7 @@ resource "aws_autoscaling_group" "spot_fleet" {
     },
     {
       key                 = "kind"
-      value               = "peer"
+      value               = coalesce(var.kind, "peer")
       propagate_at_launch = true
     },
     {
