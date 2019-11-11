@@ -73,3 +73,7 @@ variable snapshot_filename {
 variable "node_config" {
   default = ""
 }
+
+variable "kind" {
+  default = ""
+}

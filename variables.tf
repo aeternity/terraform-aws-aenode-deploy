@@ -4,6 +4,10 @@ variable "envid" {
   default = ""
 }
 
+variable "kind" {
+  default = ""
+}
+
 variable "color" {
   default = "unknown"
 }

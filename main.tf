@@ -8,6 +8,7 @@ module "aws_fleet" {
   color  = "${var.color}"
   env    = "${var.env}"
   envid  = "${var.envid}"
+  kind   = "${var.kind}"
 
   vpc_id  = "${module.aws_vpc.vpc_id}"
   subnets = "${module.aws_vpc.subnets}"
