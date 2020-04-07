@@ -1,5 +1,9 @@
+resource "random_id" "sg_name" {
+  byte_length = 4
+}
+
 resource "aws_security_group" "ae-nodes" {
-  name   = "ae-${var.env}-nodes"
+  name   = "ae-${var.env}-nodes ${random_id.sg_name.hex}"
   vpc_id = "${var.vpc_id}"
 
   lifecycle {
@@ -83,7 +87,7 @@ resource "aws_security_group_rule" "all_out" {
 }
 
 resource "aws_security_group" "ae-nodes-management" {
-  name   = "ae-${var.env}-management"
+  name   = "ae-${var.env}-management ${random_id.sg_name.hex}"
   vpc_id = "${var.vpc_id}"
 
   lifecycle {
