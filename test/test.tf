@@ -30,10 +30,10 @@ module "aws_deploy-test" {
 module "aws_deploy-test_vpc" {
   source            = "../"
   env               = var.env_name
-  envid             = "${var.envid}"
-  bootstrap_version = "${var.bootstrap_version}"
+  envid             = var.envid
+  bootstrap_version = var.bootstrap_version
   vault_role        = "ae-node"
-  vault_addr        = "${var.vault_addr}"
+  vault_addr        = var.vault_addr
   user_data_file    = "user_data.bash"
   vpc_id            = module.aws_deploy-test.vpc_id
   subnets           = module.aws_deploy-test.subnets
@@ -52,7 +52,7 @@ module "aws_deploy-test_vpc" {
   additional_storage_size = 5
 
   aeternity = {
-    package = "${var.package}"
+    package = var.package
   }
 
   enable_state_channels = true

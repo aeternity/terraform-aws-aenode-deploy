@@ -87,11 +87,11 @@ variable "node_config" {
   default = ""
 }
 
-variable "vpc_id" {
+variable vpc_id {
   default = ""
 }
 
-variable "subnets" {
+variable subnets {
   type = list
   default = []
 }
