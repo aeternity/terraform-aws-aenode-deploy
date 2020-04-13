@@ -95,3 +95,8 @@ variable "subnets" {
   type = list
   default = []
 }
+
+variable create_vpc {
+  type    = bool
+  default = true
+}

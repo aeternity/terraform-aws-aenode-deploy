@@ -60,7 +60,7 @@ resource "aws_instance" "static_node" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "test" {
+resource "aws_lb_target_group_attachment" "static_node" {
   count            = "${length(var.asg_target_groups) != 0 ? var.static_nodes : 0}"
   target_group_arn = "${element(var.asg_target_groups, count.index)}"
   target_id        = "${element(aws_instance.static_node.*.id, count.index)}"

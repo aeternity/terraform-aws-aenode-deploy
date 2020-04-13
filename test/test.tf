@@ -29,7 +29,7 @@ module "aws_deploy-test" {
 
 module "aws_deploy-test_vpc" {
   source            = "../"
-  env               = "${var.env_name}"
+  env               = var.env_name
   envid             = "${var.envid}"
   bootstrap_version = "${var.bootstrap_version}"
   vault_role        = "ae-node"
@@ -37,6 +37,7 @@ module "aws_deploy-test_vpc" {
   user_data_file    = "user_data.bash"
   vpc_id            = module.aws_deploy-test.vpc_id
   subnets           = module.aws_deploy-test.subnets
+  create_vpc        = false
 
   static_nodes   = 1
   spot_nodes     = 1
