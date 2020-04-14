@@ -1,8 +1,6 @@
 module "aws_vpc" {
   source = "./vpc"
   env    = "${var.env}"
-
-  count_vpc = var.create_vpc ? 1 : 0
 }
 
 module "aws_fleet" {

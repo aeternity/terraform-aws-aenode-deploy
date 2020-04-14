@@ -37,7 +37,6 @@ module "aws_deploy-test_vpc" {
   user_data_file    = "user_data.bash"
   vpc_id            = module.aws_deploy-test.vpc_id
   subnets           = module.aws_deploy-test.subnets
-  create_vpc        = false
 
   static_nodes   = 1
   spot_nodes     = 1
