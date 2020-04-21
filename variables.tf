@@ -86,3 +86,12 @@ variable snapshot_filename {
 variable "node_config" {
   default = ""
 }
+
+variable vpc_id {
+  default = ""
+}
+
+variable subnets {
+  type = list
+  default = []
+}

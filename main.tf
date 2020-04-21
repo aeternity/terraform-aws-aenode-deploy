@@ -10,8 +10,8 @@ module "aws_fleet" {
   envid  = "${var.envid}"
   kind   = "${var.kind}"
 
-  vpc_id  = "${module.aws_vpc.vpc_id}"
-  subnets = "${module.aws_vpc.subnets}"
+  vpc_id  = var.vpc_id != "" ? var.vpc_id : module.aws_vpc.vpc_id
+  subnets = length(var.subnets) != 0 ? var.subnets : module.aws_vpc.subnets
 
   instance_type = "${var.instance_type}"
   ami_name      = "${var.ami_name}"
