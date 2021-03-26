@@ -24,7 +24,6 @@ module "aws_fleet" {
 
   bootstrap_version = "${var.bootstrap_version}"
   user_data_file    = "${var.user_data_file}"
-  snapshot_filename = "${var.snapshot_filename}"
 
   static_nodes   = "${var.static_nodes}"
   spot_nodes     = "${var.spot_nodes}"
@@ -35,7 +34,6 @@ module "aws_fleet" {
   additional_storage      = "${var.additional_storage}"
   additional_storage_size = "${var.additional_storage_size}"
 
-  aeternity             = "${var.aeternity}"
   enable_internal_api   = "${var.enable_internal_api}"
   enable_state_channels = "${var.enable_state_channels}"
   asg_target_groups     = "${var.asg_target_groups}"

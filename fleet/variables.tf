@@ -39,10 +39,6 @@ variable "subnets" {
   type = list
 }
 
-variable "aeternity" {
-  type = "map"
-}
-
 variable "ami_name" {}
 
 variable "vault_addr" {}
@@ -65,9 +61,6 @@ variable enable_internal_api {
 
 variable asg_target_groups {
   type = list
-}
-
-variable snapshot_filename {
 }
 
 variable "node_config" {
