@@ -43,15 +43,14 @@ variable "instance_type" {}
 
 variable "spot_price" {}
 
-variable "aeternity" {
-  type = "map"
-}
-
 variable "ami_name" {}
 
 variable "vault_addr" {}
 
-variable "vault_role" {}
+variable "vault_role" {
+  type = string
+  default = "ae-node"
+}
 
 # Keep 8GB as default root volume size, that is the same if no parameter is used
 variable "root_volume_size" {
@@ -76,11 +75,6 @@ variable enable_internal_api {
 variable asg_target_groups {
   type    = list
   default = []
-}
-# Some resources do not accept empty tags and Terraform would fail otherwise
-# This is workaround string that should be interpreted as not set in the bootstrap
-variable snapshot_filename {
-  default = "empty"
 }
 
 variable "node_config" {

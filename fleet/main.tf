@@ -39,9 +39,7 @@ resource "aws_instance" "static_node" {
     role              = "aenode"
     color             = "${var.color}"
     kind              = coalesce(var.kind, "seed")
-    package           = "${var.aeternity["package"]}"
     bootstrap_version = "${var.bootstrap_version}"
-    snapshot_filename = "${var.snapshot_filename}"
     vault_addr        = "${var.vault_addr}"
     vault_role        = "${var.vault_role}"
   }
@@ -200,18 +198,8 @@ resource "aws_autoscaling_group" "spot_fleet" {
       propagate_at_launch = true
     },
     {
-      key                 = "package"
-      value               = "${var.aeternity["package"]}"
-      propagate_at_launch = true
-    },
-    {
       key                 = "bootstrap_version"
       value               = "${var.bootstrap_version}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "snapshot_filename"
-      value               = "${var.snapshot_filename}"
       propagate_at_launch = true
     },
     {

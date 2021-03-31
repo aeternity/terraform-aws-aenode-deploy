@@ -19,10 +19,6 @@ module "aws_deploy-test" {
   additional_storage      = true
   additional_storage_size = 5
 
-  aeternity = {
-    package = "${var.package}"
-  }
-
   enable_state_channels = true
   enable_internal_api   = true
 }
@@ -49,10 +45,6 @@ module "aws_deploy-test_vpc" {
 
   additional_storage      = true
   additional_storage_size = 5
-
-  aeternity = {
-    package = var.package
-  }
 
   enable_state_channels = true
   enable_internal_api   = true
