@@ -4,7 +4,7 @@ resource "random_id" "sg_name" {
 
 resource "aws_security_group" "ae-nodes" {
   name   = "ae-${var.env}-nodes ${random_id.sg_name.hex}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = var.vpc_id
 
   lifecycle {
     create_before_destroy = true
@@ -16,8 +16,8 @@ resource "aws_security_group_rule" "local_in" {
   from_port                = 0
   to_port                  = 65535
   protocol                 = "TCP"
-  security_group_id        = "${aws_security_group.ae-nodes.id}"
-  source_security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id        = aws_security_group.ae-nodes.id
+  source_security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "external_api_in" {
@@ -26,37 +26,37 @@ resource "aws_security_group_rule" "external_api_in" {
   to_port           = 3013
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "internal_api_in" {
-  count             = "${var.enable_internal_api ? 1 : 0}"
+  count             = var.enable_internal_api ? 1 : 0
   type              = "ingress"
   from_port         = 3113
   to_port           = 3113
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "sc_websocket_in" {
-  count             = "${var.enable_state_channels ? 1 : 0}"
+  count             = var.enable_state_channels ? 1 : 0
   type              = "ingress"
   from_port         = 3014
   to_port           = 3014
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "sc_noise_in" {
-  count             = "${var.enable_state_channels ? 1 : 0}"
+  count             = var.enable_state_channels ? 1 : 0
   type              = "ingress"
   from_port         = 3114
   to_port           = 3114
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "sync_in" {
@@ -65,7 +65,7 @@ resource "aws_security_group_rule" "sync_in" {
   to_port           = 3015
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "health_check_in" {
@@ -74,7 +74,7 @@ resource "aws_security_group_rule" "health_check_in" {
   to_port           = 8080
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group_rule" "all_out" {
@@ -83,12 +83,12 @@ resource "aws_security_group_rule" "all_out" {
   to_port           = 65535
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes.id}"
+  security_group_id = aws_security_group.ae-nodes.id
 }
 
 resource "aws_security_group" "ae-nodes-management" {
   name   = "ae-${var.env}-management ${random_id.sg_name.hex}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = var.vpc_id
 
   lifecycle {
     create_before_destroy = true
@@ -101,7 +101,7 @@ resource "aws_security_group_rule" "management-ssh_in" {
   to_port           = 22
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes-management.id}"
+  security_group_id = aws_security_group.ae-nodes-management.id
 }
 
 resource "aws_security_group_rule" "management-icmp_in" {
@@ -110,7 +110,7 @@ resource "aws_security_group_rule" "management-icmp_in" {
   to_port           = -1
   protocol          = "icmp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes-management.id}"
+  security_group_id = aws_security_group.ae-nodes-management.id
 }
 
 resource "aws_security_group_rule" "management-all_out" {
@@ -119,7 +119,7 @@ resource "aws_security_group_rule" "management-all_out" {
   to_port           = 65535
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes-management.id}"
+  security_group_id = aws_security_group.ae-nodes-management.id
 }
 
 resource "aws_security_group_rule" "management-ntp_out" {
@@ -128,5 +128,5 @@ resource "aws_security_group_rule" "management-ntp_out" {
   to_port           = 123
   protocol          = "UDP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ae-nodes-management.id}"
+  security_group_id = aws_security_group.ae-nodes-management.id
 }

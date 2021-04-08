@@ -1,40 +1,40 @@
 module "aws_vpc" {
   source = "./vpc"
-  env    = "${var.env}"
+  env    = var.env
 }
 
 module "aws_fleet" {
   source = "./fleet"
-  color  = "${var.color}"
-  env    = "${var.env}"
-  envid  = "${var.envid}"
-  kind   = "${var.kind}"
+  color  = var.color
+  env    = var.env
+  envid  = var.envid
+  kind   = var.kind
 
   vpc_id  = var.vpc_id != "" ? var.vpc_id : module.aws_vpc.vpc_id
   subnets = length(var.subnets) != 0 ? var.subnets : module.aws_vpc.subnets
 
-  instance_type = "${var.instance_type}"
-  ami_name      = "${var.ami_name}"
-  spot_price    = "${var.spot_price}"
+  instance_type = var.instance_type
+  ami_name      = var.ami_name
+  spot_price    = var.spot_price
 
-  vault_addr = "${var.vault_addr}"
-  vault_role = "${var.vault_role}"
+  vault_addr = var.vault_addr
+  vault_role = var.vault_role
 
-  node_config = "${var.node_config}"
+  node_config = var.node_config
 
-  bootstrap_version = "${var.bootstrap_version}"
-  user_data_file    = "${var.user_data_file}"
+  bootstrap_version = var.bootstrap_version
+  user_data_file    = var.user_data_file
 
-  static_nodes   = "${var.static_nodes}"
-  spot_nodes     = "${var.spot_nodes}"
-  spot_nodes_min = "${var.spot_nodes_min}"
-  spot_nodes_max = "${var.spot_nodes_max}"
+  static_nodes   = var.static_nodes
+  spot_nodes     = var.spot_nodes
+  spot_nodes_min = var.spot_nodes_min
+  spot_nodes_max = var.spot_nodes_max
 
-  root_volume_size        = "${var.root_volume_size}"
-  additional_storage      = "${var.additional_storage}"
-  additional_storage_size = "${var.additional_storage_size}"
+  root_volume_size        = var.root_volume_size
+  additional_storage      = var.additional_storage
+  additional_storage_size = var.additional_storage_size
 
-  enable_internal_api   = "${var.enable_internal_api}"
-  enable_state_channels = "${var.enable_state_channels}"
-  asg_target_groups     = "${var.asg_target_groups}"
+  enable_internal_api   = var.enable_internal_api
+  enable_state_channels = var.enable_state_channels
+  asg_target_groups     = var.asg_target_groups
 }
