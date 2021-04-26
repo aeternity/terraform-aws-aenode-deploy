@@ -1,7 +1,7 @@
 variable "env" {}
 
 variable "availability_zones" {
-  type = "map"
+  type = map
 
   default = {
     "us-west-2"      = "us-west-2a,us-west-2b,us-west-2c"

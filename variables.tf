@@ -48,7 +48,7 @@ variable "ami_name" {}
 variable "vault_addr" {}
 
 variable "vault_role" {
-  type = string
+  type    = string
   default = "ae-node"
 }
 
@@ -86,6 +86,6 @@ variable vpc_id {
 }
 
 variable subnets {
-  type = list
+  type    = list
   default = []
 }
