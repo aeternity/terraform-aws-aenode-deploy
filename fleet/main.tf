@@ -1,6 +1,6 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
-  node_config = coalesce(var.node_config, "secret/aenode/config/${var.env}")
+  node_config       = coalesce(var.node_config, "secret/aenode/config/${var.env}")
 }
 
 data "aws_region" "current" {}
@@ -70,8 +70,8 @@ resource "aws_ebs_volume" "ebs" {
   size              = var.additional_storage_size
 
   tags = {
-    Name              = "ae-${var.env}-static-node"
-    env               = var.env
+    Name = "ae-${var.env}-static-node"
+    env  = var.env
   }
 }
 
@@ -142,7 +142,7 @@ resource "aws_autoscaling_group" "spot_fleet" {
   name_prefix          = "ae-${var.env}-spot-nodes-"
   min_size             = max(var.spot_nodes_min, var.spot_nodes)
   max_size             = max(var.spot_nodes_max, var.spot_nodes)
-  launch_configuration = var.additional_storage  ? aws_launch_configuration.spot-with-additional-storage.0.name : aws_launch_configuration.spot.0.name
+  launch_configuration = var.additional_storage ? aws_launch_configuration.spot-with-additional-storage.0.name : aws_launch_configuration.spot.0.name
   vpc_zone_identifier  = var.subnets
   target_group_arns    = var.asg_target_groups
 

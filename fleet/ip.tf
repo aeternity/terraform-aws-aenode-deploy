@@ -2,8 +2,8 @@ resource "aws_eip" "ip" {
   count = var.static_nodes
 
   tags = {
-    Name = "${var.env}"
-    env  = "${var.env}"
+    Name = var.env
+    env  = var.env
   }
 }
 

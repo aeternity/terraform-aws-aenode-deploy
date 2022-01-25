@@ -13,7 +13,7 @@ variable "spot_nodes_max" {
 }
 
 variable "additional_storage" {
-  type = bool
+  type    = bool
   default = false
 }
 
