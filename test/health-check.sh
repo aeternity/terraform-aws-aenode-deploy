@@ -7,12 +7,12 @@ export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-ap-southeast-2}
 health_check () {
     API_ADDR=$1
     echo "Checking" $API_ADDR
-
+    echo "http://${API_ADDR}:8080/healthz"
     # Basic health check endpoint
-    curl -sSf -o /dev/null --retry 8 --retry-connrefused http://${API_ADDR}:8080/healthz
-
+    curl -sSf --retry 8 --retry-connrefused http://${API_ADDR}:8080/healthz
+    echo "http://${API_ADDR}:3013/v2/status"
     # External API
-    curl -sSf -o /dev/null --retry 8 --retry-connrefused http://${API_ADDR}:3013/v2/status
+    curl -sSf --retry 8 --retry-connrefused http://${API_ADDR}:3013/v2/status
 
     # Internal API (dry-run)
     EXT_STATUS=$(curl -sS -o /dev/null --retry 8 --retry-connrefused \
