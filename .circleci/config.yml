@@ -83,27 +83,3 @@ workflows:
           terraform_version: "0.12.30"
           context: ae-infra-manage
           requires: []
-
-      - integration_tests:
-          name: "Run on terraform 0.13.7"
-          terraform_version: "0.13.7"
-          context: ae-infra-manage
-          requires: []
-
-      - integration_tests:
-          name: "Run on terraform 0.14.11"
-          terraform_version: "0.14.11"
-          context: ae-infra-manage
-          requires: []
-
-      - integration_tests:
-          name: "Run on terraform 0.15.5"
-          terraform_version: "0.15.5"
-          context: ae-infra-manage
-          requires: []
-
-      - integration_tests:
-          name: "Run on terraform 1.1.4"
-          terraform_version: "1.1.4"
-          context: ae-infra-manage
-          requires: []
