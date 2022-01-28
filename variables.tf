@@ -62,18 +62,18 @@ variable "user_data_file" {
   default = "user_data.bash"
 }
 
-variable enable_state_channels {
+variable "enable_state_channels" {
   type    = bool
   default = false
 }
 
-variable enable_internal_api {
+variable "enable_internal_api" {
   type    = bool
   default = false
 }
 
-variable asg_target_groups {
-  type    = list
+variable "asg_target_groups" {
+  type    = list(any)
   default = []
 }
 
@@ -81,11 +81,11 @@ variable "node_config" {
   default = ""
 }
 
-variable vpc_id {
+variable "vpc_id" {
   default = ""
 }
 
-variable subnets {
-  type    = list
+variable "subnets" {
+  type    = list(any)
   default = []
 }

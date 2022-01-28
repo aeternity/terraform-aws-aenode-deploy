@@ -1,10 +1,10 @@
 module "aws_deploy-test" {
   source            = "../"
-  env               = "${var.env_name}"
-  envid             = "${var.envid}"
-  bootstrap_version = "${var.bootstrap_version}"
+  env               = var.env_name
+  envid             = var.envid
+  bootstrap_version = var.bootstrap_version
   vault_role        = "ae-node"
-  vault_addr        = "${var.vault_addr}"
+  vault_addr        = var.vault_addr
   user_data_file    = "user_data.bash"
 
   static_nodes   = 1

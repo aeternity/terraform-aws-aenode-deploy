@@ -2,17 +2,29 @@ version: 2.1
 executors:
   infrastructure_container:
     docker:
-      - image: aeternity/infrastructure:v2.12.3
+      - image: aeternity/infrastructure:v2.12.4
     working_directory: /src
 
 commands:
   integration_tests:
     description: "Integration Tests"
+    parameters:
+      terraform_version:
+        type: string
+        default: "0.12.30"
     steps:
+      - run:
+          name: Setup terraform version
+          command: |
+            echo << parameters.terraform_version >>  >> test/.terraform-version
       - run:
           name: Terraform init
           command: |
             cd test && envdir /secrets terraform init
+      - run:
+          name: Terraform version
+          command: |
+            cd test && terraform version
       - run:
           name: Terraform format check
           command: |
@@ -20,7 +32,7 @@ commands:
       - run:
           name: Terraform validate
           command: |
-            cd test && terraform validate -var vault_addr=dummy -var envid=dummy
+            cd test && terraform validate
       - run:
           name: Integration environment setup
           command: |
@@ -47,20 +59,27 @@ commands:
           name: Setup test environment
           command: |
             echo 'export TF_VAR_vault_addr="$(</secrets/VAULT_ADDR)"' >> $BASH_ENV
-            echo 'export TF_VAR_envid="tf_test_${CIRCLE_JOB}_${CIRCLE_SHA1}"' >> $BASH_ENV
+            echo 'export TF_VAR_envid="tf_test_${CIRCLE_BUILD_NUM}_${CIRCLE_SHA1}"' >> $BASH_ENV
 
 jobs:
   integration_tests:
+    parameters:
+      terraform_version:
+        type: string
+
     executor: infrastructure_container
     steps:
       - checkout
       - setup_secrets
       - setup_test_environment
-      - integration_tests
+      - integration_tests:
+          terraform_version: << parameters.terraform_version >>
 
 workflows:
   test:
     jobs:
       - integration_tests:
+          name: "Run on terraform 0.12.30"
+          terraform_version: "0.12.30"
           context: ae-infra-manage
           requires: []

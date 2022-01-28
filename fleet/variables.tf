@@ -36,7 +36,7 @@ variable "spot_price" {}
 variable "vpc_id" {}
 
 variable "subnets" {
-  type = list
+  type = list(any)
 }
 
 variable "ami_name" {}
@@ -49,18 +49,18 @@ variable "root_volume_size" {}
 
 variable "user_data_file" {}
 
-variable enable_state_channels {
+variable "enable_state_channels" {
   type    = bool
   default = false
 }
 
-variable enable_internal_api {
+variable "enable_internal_api" {
   type    = bool
   default = false
 }
 
-variable asg_target_groups {
-  type = list
+variable "asg_target_groups" {
+  type = list(any)
 }
 
 variable "node_config" {
