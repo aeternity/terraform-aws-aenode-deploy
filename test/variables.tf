@@ -11,7 +11,7 @@ variable "envid" {
 }
 
 variable "bootstrap_version" {
-  default = "master"
+  default = "bump-dataog-agent"
 }
 
 variable "package" {
