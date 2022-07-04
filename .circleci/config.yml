@@ -81,5 +81,5 @@ workflows:
       - integration_tests:
           name: "Run on terraform 1.1.4"
           terraform_version: "1.1.4"
-          context: ae-infra-manage
+          context: ae-vault-infra
           requires: []
