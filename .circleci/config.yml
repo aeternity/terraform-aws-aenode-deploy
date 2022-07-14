@@ -6,80 +6,173 @@ executors:
     working_directory: /src
 
 commands:
-  integration_tests:
-    description: "Integration Tests"
-    parameters:
-      terraform_version:
-        type: string
-        default: "0.12.30"
-    steps:
-      - run:
-          name: Setup terraform version
-          command: |
-            echo << parameters.terraform_version >>  >> test/.terraform-version
-      - run:
-          name: Terraform init
-          command: |
-            cd test && envdir /secrets terraform init
-      - run:
-          name: Terraform version
-          command: |
-            cd test && terraform version
-      - run:
-          name: Terraform format check
-          command: |
-            cd test && terraform fmt -check=true -diff=true
-      - run:
-          name: Terraform validate
-          command: |
-            cd test && terraform validate
-      - run:
-          name: Integration environment setup
-          command: |
-            cd test && envdir /secrets terraform apply -parallelism=20 --auto-approve
-      - run:
-          name: Integration environment health check
-          command: |
-            ENVID=${TF_VAR_envid:?} envdir /secrets ./test/health-check.sh
-      - run:
-          name: Integration environment cleanup
-          command: |
-            cd test && envdir /secrets terraform destroy -parallelism=20 --auto-approve
-          when: always
-
   setup_secrets:
     steps:
       - run:
           name: Setup environment secrets
           command: cd /infrastructure && make secrets SECRETS_OUTPUT_DIR=/secrets
 
-  setup_test_environment:
+  terraform_init:
+    parameters:
+      path:
+        type: string
+        default: "."
+      lock_timeout:
+        type: string
+        default: "5m"
     steps:
       - run:
-          name: Setup test environment
+          name: Terraform init
           command: |
-            echo 'export TF_VAR_vault_addr="$(</secrets/VAULT_ADDR)"' >> $BASH_ENV
-            echo 'export TF_VAR_envid="tf_test_${CIRCLE_BUILD_NUM}_${CIRCLE_SHA1}"' >> $BASH_ENV
+            envdir /secrets terraform -chdir=<< parameters.path >> init -lock-timeout=<< parameters.lock_timeout >>
+
+  terraform_validate:
+    description: Format check and validate. Requires init.
+    parameters:
+      path:
+        type: string
+        default: "."
+    steps:
+      - run:
+          name: Terraform format check
+          command: |
+            terraform -chdir=<< parameters.path >> fmt -check=true -diff=true
+      - run:
+          name: Terraform validate
+          command: |
+            terraform -chdir=<< parameters.path >> validate
+
+  terraform_plan:
+    parameters:
+      path:
+        type: string
+        default: "."
+      parallelism:
+        type: integer
+        default: 20
+      lock_timeout:
+        type: string
+        default: "5m"
+      plans_workspace:
+        type: string
+        default: /tmp/plans
+      out:
+        type: string
+        default: plan.out
+    steps:
+      - run:
+          name: Terraform plan
+          command: |
+            mkdir -p $(dirname "<< parameters.out >>")
+            envdir /secrets terraform -chdir=<< parameters.path >> plan \
+              -lock-timeout=<< parameters.lock_timeout >> \
+              -parallelism=<< parameters.parallelism >> \
+              -out=<< parameters.out >> \
+              -var vault_addr=${VAULT_ADDR:?} | tee terraform-plan-info
+
+            export TERRAFORM_PLAN_INFO=`cat terraform-plan-info | grep Plan: | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'`
+            curl -sSX POST \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -d '{
+                "state": "success",
+                "target_url": "'"${CIRCLE_BUILD_URL}"'",
+                "description": "'"${TERRAFORM_PLAN_INFO}"'",
+                "context": "terraform plan"
+              }' \
+              https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/statuses/${CIRCLE_SHA1} > /dev/null
+      - persist_to_workspace:
+          root: << parameters.path >>
+          paths:
+            - "*.out"
+
+  terraform_apply:
+    parameters:
+      path:
+        type: string
+        default: "."
+      out:
+        type: string
+        default: "plan.out"
+      auto_approve:
+        type: boolean
+        default: false
+      parallelism:
+        type: integer
+        default: 20
+      lock_timeout:
+        type: string
+        default: "5m"
+    steps:
+      - attach_workspace:
+          at: << parameters.path >>
+      - run:
+          name: Terraform apply
+          command: |
+            TF_ARGS=""
+            if [ "<< parameters.auto_approve >>" = "true" ]; then
+                TF_ARGS="$TF_ARGS -auto-approve"
+            fi
+            envdir /secrets terraform -chdir=<< parameters.path >> apply \
+              -lock-timeout=<< parameters.lock_timeout >> \
+              -parallelism=<< parameters.parallelism >> \
+              << parameters.out >> \
+              $TF_ARGS
 
 jobs:
-  integration_tests:
-    parameters:
-      terraform_version:
-        type: string
-
+  validate_and_plan:
     executor: infrastructure_container
     steps:
       - checkout
       - setup_secrets
-      - setup_test_environment
-      - integration_tests:
-          terraform_version: << parameters.terraform_version >>
+      - terraform_init
+      - terraform_validate
+      - terraform_plan
+  plan:
+    executor: infrastructure_container
+    steps:
+      - checkout
+      - setup_secrets
+      - terraform_init
+      - terraform_plan
+  apply:
+    executor: infrastructure_container
+    steps:
+      - checkout
+      - setup_secrets
+      - terraform_init
+      - terraform_apply
 
 workflows:
   test:
     jobs:
-      - integration_tests:
-          name: "Run on terraform 1.1.4"
-          terraform_version: "1.1.4"
+      - validate_and_plan:
           context: ae-infra-manage
           requires: []
+          filters:
+            branches:
+              ignore: master
+
+  deploy:
+    jobs:
+      - plan:
+          context: ae-infra-manage
+          requires: []
+          filters:
+            branches:
+              only: master
+
+      - hodl:
+          type: approval
+          requires: []
+          filters:
+            branches:
+              only: master
+
+      - apply:
+          context: ae-infra-manage
+          requires:
+            - plan
+            - hodl
+          filters:
+            branches:
+              only: master
