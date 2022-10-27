@@ -1,7 +1,7 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
   node_config       = coalesce(var.node_config, "secret/aenode/config/${var.env}")
-  user_data         = templatefile("${path.module}/templates/${var.user_data_file}")
+  user_data         = templatefile("${path.module}/templates/${var.user_data_file}", {})
 }
 
 data "aws_region" "current" {}
