@@ -7,8 +7,5 @@ terraform {
     random = {
       version = "3.1.0"
     }
-    template = {
-      version = "2.2.0"
-    }
   }
 }

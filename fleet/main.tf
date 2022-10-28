@@ -1,6 +1,7 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
   node_config       = coalesce(var.node_config, "secret/aenode/config/${var.env}")
+  user_data         = templatefile("${path.module}/templates/${var.user_data_file}", {})
 }
 
 data "aws_region" "current" {}
@@ -14,10 +15,6 @@ data "aws_ami" "ami" {
   }
 
   owners = ["self"]
-}
-
-data "template_file" "user_data" {
-  template = file("${path.module}/templates/${var.user_data_file}")
 }
 
 resource "aws_instance" "static_node" {
@@ -44,7 +41,7 @@ resource "aws_instance" "static_node" {
     vault_role        = var.vault_role
   }
 
-  user_data = data.template_file.user_data.rendered
+  user_data = local.user_data
 
   subnet_id = element(var.subnets, 1)
 
@@ -104,7 +101,7 @@ resource "aws_launch_configuration" "spot" {
     create_before_destroy = true
   }
 
-  user_data = data.template_file.user_data.rendered
+  user_data = local.user_data
 }
 
 resource "aws_launch_configuration" "spot-with-additional-storage" {
@@ -134,7 +131,7 @@ resource "aws_launch_configuration" "spot-with-additional-storage" {
     create_before_destroy = true
   }
 
-  user_data = data.template_file.user_data.rendered
+  user_data = local.user_data
 }
 
 resource "aws_autoscaling_group" "spot_fleet" {
