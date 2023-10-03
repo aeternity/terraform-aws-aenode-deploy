@@ -31,8 +31,12 @@ module "aws_fleet" {
   spot_nodes_max = var.spot_nodes_max
 
   root_volume_size        = var.root_volume_size
+  root_volume_iops        = var.root_volume_iops
+  root_volume_throughput  = var.root_volume_throughput
   additional_storage      = var.additional_storage
   additional_storage_size = var.additional_storage_size
+  additional_storage_iops = var.additional_storage_iops
+  additional_storage_throughput = var.additional_storage_throughput
 
   enable_internal_api   = var.enable_internal_api
   enable_state_channels = var.enable_state_channels

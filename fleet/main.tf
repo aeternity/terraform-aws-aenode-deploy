@@ -24,8 +24,10 @@ resource "aws_instance" "static_node" {
   iam_instance_profile = "ae-node"
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = var.root_volume_size
+    iops        = var.root_volume_iops
+    throughput  = var.root_volume_throughput
   }
 
   tags = {
@@ -64,7 +66,10 @@ resource "aws_lb_target_group_attachment" "static_node" {
 resource "aws_ebs_volume" "ebs" {
   count             = var.additional_storage ? var.static_nodes : 0
   availability_zone = element(aws_instance.static_node.*.availability_zone, count.index)
+  type              = "gp3"
   size              = var.additional_storage_size
+  iops              = var.additional_storage_iops
+  throughput        = var.additional_storage_throughput
 
   tags = {
     Name = "ae-${var.env}-static-node"
@@ -93,8 +98,10 @@ resource "aws_launch_configuration" "spot" {
   ]
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = var.root_volume_size
+    iops        = var.root_volume_iops
+    throughput  = var.root_volume_throughput
   }
 
   lifecycle {
@@ -118,13 +125,18 @@ resource "aws_launch_configuration" "spot-with-additional-storage" {
   ]
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = var.root_volume_size
+    iops        = var.root_volume_iops
+    throughput  = var.root_volume_throughput
   }
 
   ebs_block_device {
     device_name = "/dev/sdh"
+    volume_type = "gp3"
     volume_size = var.additional_storage_size
+    iops        = var.additional_storage_iops
+    throughput  = var.additional_storage_throughput
   }
 
   lifecycle {
