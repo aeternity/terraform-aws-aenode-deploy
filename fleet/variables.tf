@@ -12,12 +12,18 @@ variable "spot_nodes_max" {
   default = 0
 }
 
+variable "root_volume_size" {}
+variable "root_volume_iops" {}
+variable "root_volume_throughput" {}
+
 variable "additional_storage" {
   type    = bool
   default = false
 }
 
 variable "additional_storage_size" {}
+variable "additional_storage_iops" {}
+variable "additional_storage_throughput" {}
 
 variable "color" {}
 
@@ -44,8 +50,6 @@ variable "ami_name" {}
 variable "vault_addr" {}
 
 variable "vault_role" {}
-
-variable "root_volume_size" {}
 
 variable "user_data_file" {}
 
