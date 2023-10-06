@@ -1,19 +1,5 @@
 variable "env" {}
 
-variable "envid" {
-  default = ""
-}
-
-variable "kind" {
-  default = ""
-}
-
-variable "color" {
-  default = "unknown"
-}
-
-variable "bootstrap_version" {}
-
 variable "spot_nodes" {
   default = 0
 }
@@ -34,12 +20,12 @@ variable "root_volume_size" {
 
 variable "root_volume_iops" {
   description = "Guaranteed minimum IOPS. 3000 is free tier"
-  default = 3000
+  default     = 3000
 }
 
 variable "root_volume_throughput" {
   description = "Number of megabytes per second limit. 125 is free tier"
-  default = 125
+  default     = 125
 }
 
 variable "additional_storage" {
@@ -63,18 +49,15 @@ variable "static_nodes" {
   default = 0
 }
 
-variable "instance_type" {}
+variable "instance_type" {
+  description = "Fleet insance type. Deprecated: Use instance_types."
+}
 
-variable "spot_price" {}
+variable "instance_types" {
+  type = list(string)
+}
 
 variable "ami_name" {}
-
-variable "vault_addr" {}
-
-variable "vault_role" {
-  type    = string
-  default = "ae-node"
-}
 
 variable "user_data_file" {
   default = "user_data.bash"
@@ -95,10 +78,6 @@ variable "asg_target_groups" {
   default = []
 }
 
-variable "node_config" {
-  default = ""
-}
-
 variable "vpc_id" {
   default = ""
 }
@@ -106,4 +85,12 @@ variable "vpc_id" {
 variable "subnets" {
   type    = list(any)
   default = []
+}
+
+variable "tags" {
+  type = map(string)
+}
+
+variable "config_tags" {
+  type = map(string)
 }
