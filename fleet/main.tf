@@ -1,7 +1,7 @@
 locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
   user_data         = templatefile("${path.module}/templates/${var.user_data_file}", {})
-  instance_types = concat([var.instance_type], var.instance_types)
+  instance_types    = concat([var.instance_type], var.instance_types)
 }
 
 data "aws_region" "current" {}
@@ -18,12 +18,37 @@ data "aws_ami" "ami" {
 }
 
 resource "aws_instance" "static_node" {
-  count = var.static_nodes
-  subnet_id = element(var.subnets, 1)
+  count                = var.static_nodes
+  ami                  = data.aws_ami.ami.id
+  instance_type        = var.instance_type
+  user_data            = local.user_data
+  subnet_id            = element(var.subnets, 1)
+  ebs_optimized        = true
+  iam_instance_profile = "ae-node"
 
-  launch_template {
-    id = aws_launch_template.fleet.id
-    version = "$Latest"
+  vpc_security_group_ids = [
+    aws_security_group.ae-nodes.id,
+    aws_security_group.ae-nodes-management.id,
+  ]
+
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = var.root_volume_size
+    iops                  = var.root_volume_iops
+    throughput            = var.root_volume_throughput
+    delete_on_termination = true
+  }
+
+  dynamic "ebs_block_device" {
+    for_each = var.additional_storage ? [1] : []
+    content {
+      device_name           = "/dev/sdh"
+      volume_type           = "gp3"
+      volume_size           = var.additional_storage_size
+      iops                  = var.additional_storage_iops
+      throughput            = var.additional_storage_throughput
+      delete_on_termination = true
+    }
   }
 
   lifecycle {
@@ -31,7 +56,11 @@ resource "aws_instance" "static_node" {
   }
 
   tags = merge(var.tags, var.config_tags, {
-    Name  = "ae-${var.tags.env}-static-node",
+    Name = "ae-${var.tags.env}-static-node",
+  })
+
+  volume_tags = merge(var.tags, {
+    Name = "ae-${var.tags.env}-static-node",
   })
 }
 
@@ -94,14 +123,14 @@ resource "aws_launch_template" "fleet" {
   tag_specifications {
     resource_type = "instance"
     tags = merge(var.tags, var.config_tags, {
-      Name  = "ae-${var.tags.env}-node",
+      Name = "ae-${var.tags.env}-node",
     })
   }
 
   tag_specifications {
     resource_type = "volume"
     tags = merge(var.tags, {
-      Name  = "ae-${var.tags.env}-node-vol",
+      Name = "ae-${var.tags.env}-node",
     })
   }
 }
