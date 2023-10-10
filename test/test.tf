@@ -1,51 +1,34 @@
 module "aws_deploy-test" {
-  source            = "../"
-  env               = var.env_name
-  envid             = var.envid
-  bootstrap_version = var.bootstrap_version
-  vault_role        = "ae-node"
-  vault_addr        = var.vault_addr
-  user_data_file    = "user_data.bash"
+  source         = "../"
+  env            = var.env_name
+  user_data_file = "user_data.bash"
 
   static_nodes   = 1
   spot_nodes     = 1
   spot_nodes_min = 1
-  spot_nodes_max = 1
+  spot_nodes_max = 2
 
-  spot_price    = "0.04"
-  instance_type = "t3.large"
-  ami_name      = "aeternity-ubuntu-18.04-*"
+  instance_type  = "t3.large"
+  instance_types = ["m5.large", "r5.large"]
+  ami_name       = "aeternity-ubuntu-18.04-*"
 
   additional_storage      = true
   additional_storage_size = 5
 
   enable_state_channels = true
   enable_internal_api   = true
-}
 
-module "aws_deploy-test_vpc" {
-  source            = "../"
-  env               = var.env_name
-  envid             = var.envid
-  bootstrap_version = var.bootstrap_version
-  vault_role        = "ae-node"
-  vault_addr        = var.vault_addr
-  user_data_file    = "user_data.bash"
-  vpc_id            = module.aws_deploy-test.vpc_id
-  subnets           = module.aws_deploy-test.subnets
+  tags = {
+    env   = var.env_name
+    envid = coalesce(var.envid, var.env_name)
+    role  = "aenode"
+    color = "black"
+  }
 
-  static_nodes   = 1
-  spot_nodes     = 1
-  spot_nodes_min = 1
-  spot_nodes_max = 1
-
-  spot_price    = "0.04"
-  instance_type = "t3.large"
-  ami_name      = "aeternity-ubuntu-18.04-*"
-
-  additional_storage      = true
-  additional_storage_size = 5
-
-  enable_state_channels = true
-  enable_internal_api   = true
+  config_tags = {
+    bootstrap_version = var.bootstrap_version
+    vault_addr        = var.vault_addr
+    vault_role        = "ae-node"
+    node_config       = "secret/aenode/config/${var.env_name}"
+  }
 }

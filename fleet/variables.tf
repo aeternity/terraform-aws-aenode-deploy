@@ -25,19 +25,15 @@ variable "additional_storage_size" {}
 variable "additional_storage_iops" {}
 variable "additional_storage_throughput" {}
 
-variable "color" {}
-
 variable "env" {}
 
-variable "envid" {
-  default = ""
+variable "instance_type" {
+  description = "Fleet insance type. Deprecated: Use instance_types."
 }
 
-variable "bootstrap_version" {}
-
-variable "instance_type" {}
-
-variable "spot_price" {}
+variable "instance_types" {
+  type = list(string)
+}
 
 variable "vpc_id" {}
 
@@ -46,10 +42,6 @@ variable "subnets" {
 }
 
 variable "ami_name" {}
-
-variable "vault_addr" {}
-
-variable "vault_role" {}
 
 variable "user_data_file" {}
 
@@ -67,10 +59,10 @@ variable "asg_target_groups" {
   type = list(any)
 }
 
-variable "node_config" {
-  default = ""
+variable "tags" {
+  type = map(string)
 }
 
-variable "kind" {
-  default = ""
+variable "config_tags" {
+  type = map(string)
 }
