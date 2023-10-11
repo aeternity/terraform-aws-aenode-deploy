@@ -39,18 +39,6 @@ resource "aws_instance" "static_node" {
     delete_on_termination = true
   }
 
-  dynamic "ebs_block_device" {
-    for_each = var.additional_storage ? [1] : []
-    content {
-      device_name           = "/dev/sdh"
-      volume_type           = "gp3"
-      volume_size           = var.additional_storage_size
-      iops                  = var.additional_storage_iops
-      throughput            = var.additional_storage_throughput
-      delete_on_termination = true
-    }
-  }
-
   lifecycle {
     create_before_destroy = true
   }
@@ -64,6 +52,27 @@ resource "aws_instance" "static_node" {
     Name = "ae-${var.tags.env}-static-node",
     kind = "seed",
   }, var.tags)
+}
+
+resource "aws_ebs_volume" "ebs" {
+  count             = var.additional_storage ? var.static_nodes : 0
+  availability_zone = element(aws_instance.static_node.*.availability_zone, count.index)
+  type              = "gp3"
+  size              = var.additional_storage_size
+  iops              = var.additional_storage_iops
+  throughput        = var.additional_storage_throughput
+
+  tags = merge({
+    Name = "ae-${var.tags.env}-static-node",
+    kind = "seed",
+  }, var.tags)
+}
+
+resource "aws_volume_attachment" "ebs_att" {
+  count       = var.additional_storage ? var.static_nodes : 0
+  device_name = "/dev/sdh"
+  volume_id   = element(aws_ebs_volume.ebs.*.id, count.index)
+  instance_id = element(aws_instance.static_node.*.id, count.index)
 }
 
 resource "aws_lb_target_group_attachment" "static_node" {
