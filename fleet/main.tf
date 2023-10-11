@@ -55,13 +55,15 @@ resource "aws_instance" "static_node" {
     create_before_destroy = true
   }
 
-  tags = merge(var.tags, var.config_tags, {
+  tags = merge(var.config_tags, {
     Name = "ae-${var.tags.env}-static-node",
-  })
+    kind = "seed",
+  }, var.tags)
 
-  volume_tags = merge(var.tags, {
+  volume_tags = merge({
     Name = "ae-${var.tags.env}-static-node",
-  })
+    kind = "seed",
+  }, var.tags)
 }
 
 resource "aws_lb_target_group_attachment" "static_node" {
@@ -122,16 +124,18 @@ resource "aws_launch_template" "fleet" {
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(var.tags, var.config_tags, {
+    tags = merge(var.config_tags, {
       Name = "ae-${var.tags.env}-node",
-    })
+      kind = "peer",
+    }, var.tags)
   }
 
   tag_specifications {
     resource_type = "volume"
-    tags = merge(var.tags, {
+    tags = merge({
       Name = "ae-${var.tags.env}-node",
-    })
+      kind = "peer",
+    }, var.tags)
   }
 }
 
@@ -179,12 +183,6 @@ resource "aws_autoscaling_group" "spot_fleet" {
 
   lifecycle {
     create_before_destroy = true
-  }
-
-  tag {
-    key                 = "kind"
-    value               = "peer"
-    propagate_at_launch = true
   }
 }
 
