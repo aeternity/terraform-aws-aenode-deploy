@@ -23,7 +23,7 @@ resource "aws_instance" "static_node" {
   instance_type        = var.instance_type
   user_data            = local.user_data
   subnet_id            = element(var.subnets, 1)
-  # ebs_optimized        = true
+  ebs_optimized        = true
   iam_instance_profile = "ae-node"
 
   vpc_security_group_ids = [
