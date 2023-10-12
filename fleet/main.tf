@@ -39,29 +39,40 @@ resource "aws_instance" "static_node" {
     delete_on_termination = true
   }
 
-  dynamic "ebs_block_device" {
-    for_each = var.additional_storage ? [1] : []
-    content {
-      device_name           = "/dev/sdh"
-      volume_type           = "gp3"
-      volume_size           = var.additional_storage_size
-      iops                  = var.additional_storage_iops
-      throughput            = var.additional_storage_throughput
-      delete_on_termination = true
-    }
-  }
-
   lifecycle {
     create_before_destroy = true
   }
 
-  tags = merge(var.tags, var.config_tags, {
+  tags = merge(var.config_tags, {
     Name = "ae-${var.tags.env}-static-node",
-  })
+    kind = "seed",
+  }, var.tags)
 
-  volume_tags = merge(var.tags, {
+  volume_tags = merge({
     Name = "ae-${var.tags.env}-static-node",
-  })
+    kind = "seed",
+  }, var.tags)
+}
+
+resource "aws_ebs_volume" "ebs" {
+  count             = var.additional_storage ? var.static_nodes : 0
+  availability_zone = element(aws_instance.static_node.*.availability_zone, count.index)
+  type              = "gp3"
+  size              = var.additional_storage_size
+  iops              = var.additional_storage_iops
+  throughput        = var.additional_storage_throughput
+
+  tags = merge({
+    Name = "ae-${var.tags.env}-static-node",
+    kind = "seed",
+  }, var.tags)
+}
+
+resource "aws_volume_attachment" "ebs_att" {
+  count       = var.additional_storage ? var.static_nodes : 0
+  device_name = "/dev/sdh"
+  volume_id   = element(aws_ebs_volume.ebs.*.id, count.index)
+  instance_id = element(aws_instance.static_node.*.id, count.index)
 }
 
 resource "aws_lb_target_group_attachment" "static_node" {
@@ -122,16 +133,18 @@ resource "aws_launch_template" "fleet" {
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(var.tags, var.config_tags, {
+    tags = merge(var.config_tags, {
       Name = "ae-${var.tags.env}-node",
-    })
+      kind = "peer",
+    }, var.tags)
   }
 
   tag_specifications {
     resource_type = "volume"
-    tags = merge(var.tags, {
+    tags = merge({
       Name = "ae-${var.tags.env}-node",
-    })
+      kind = "peer",
+    }, var.tags)
   }
 }
 
@@ -179,12 +192,6 @@ resource "aws_autoscaling_group" "spot_fleet" {
 
   lifecycle {
     create_before_destroy = true
-  }
-
-  tag {
-    key                 = "kind"
-    value               = "peer"
-    propagate_at_launch = true
   }
 }
 
