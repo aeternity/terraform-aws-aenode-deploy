@@ -78,6 +78,11 @@ variable "asg_target_groups" {
   default = []
 }
 
+variable "asg_suspended_processes" {
+  type    = list(string)
+  default = ["AZRebalance"]
+}
+
 variable "vpc_id" {
   default = ""
 }

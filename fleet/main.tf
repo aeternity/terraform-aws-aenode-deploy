@@ -156,6 +156,7 @@ resource "aws_autoscaling_group" "spot_fleet" {
   capacity_rebalance  = true
   vpc_zone_identifier = var.subnets
   target_group_arns   = var.asg_target_groups
+  suspended_processes = var.asg_suspended_processes
 
   enabled_metrics = local.autoscale_enabled ? [
     "GroupMinSize",

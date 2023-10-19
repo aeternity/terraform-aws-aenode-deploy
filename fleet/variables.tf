@@ -59,6 +59,11 @@ variable "asg_target_groups" {
   type = list(any)
 }
 
+variable "asg_suspended_processes" {
+  type    = list(string)
+  default = []
+}
+
 variable "tags" {
   type = map(string)
 }

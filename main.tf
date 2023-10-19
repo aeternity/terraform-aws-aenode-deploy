@@ -29,9 +29,10 @@ module "aws_fleet" {
   additional_storage_iops       = var.additional_storage_iops
   additional_storage_throughput = var.additional_storage_throughput
 
-  enable_internal_api   = var.enable_internal_api
-  enable_state_channels = var.enable_state_channels
-  asg_target_groups     = var.asg_target_groups
+  enable_internal_api     = var.enable_internal_api
+  enable_state_channels   = var.enable_state_channels
+  asg_target_groups       = var.asg_target_groups
+  asg_suspended_processes = var.asg_suspended_processes
 
   tags        = var.tags
   config_tags = var.config_tags
