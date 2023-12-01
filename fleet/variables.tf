@@ -45,12 +45,22 @@ variable "ami_name" {}
 
 variable "user_data_file" {}
 
+variable "user_data" {
+  type = string
+  default = ""
+}
+
 variable "enable_state_channels" {
   type    = bool
   default = false
 }
 
 variable "enable_internal_api" {
+  type    = bool
+  default = false
+}
+
+variable "enable_mdw" {
   type    = bool
   default = false
 }

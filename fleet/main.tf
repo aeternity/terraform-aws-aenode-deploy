@@ -2,6 +2,7 @@ locals {
   autoscale_enabled = var.spot_nodes_max > var.spot_nodes_min
   user_data         = templatefile("${path.module}/templates/${var.user_data_file}", {})
   instance_types    = concat([var.instance_type], var.instance_types)
+  lb_attachements   = setproduct(var.asg_target_groups, range(0, var.static_nodes))
 }
 
 data "aws_region" "current" {}
@@ -21,7 +22,7 @@ resource "aws_instance" "static_node" {
   count                = var.static_nodes
   ami                  = data.aws_ami.ami.id
   instance_type        = var.instance_type
-  user_data            = local.user_data
+  user_data            = var.user_data != "" ? var.user_data : local.user_data
   subnet_id            = element(var.subnets, 1)
   ebs_optimized        = true
   iam_instance_profile = "ae-node"
@@ -76,9 +77,9 @@ resource "aws_volume_attachment" "ebs_att" {
 }
 
 resource "aws_lb_target_group_attachment" "static_node" {
-  count            = length(var.asg_target_groups) != 0 ? var.static_nodes : 0
-  target_group_arn = element(var.asg_target_groups, count.index)
-  target_id        = element(aws_instance.static_node.*.id, count.index)
+  for_each          = {for i,v in local.lb_attachements: i => v}
+  target_group_arn  = each.value[0]
+  target_id         = element(aws_instance.static_node.*.id, each.value[1])
 }
 
 resource "aws_launch_template" "fleet" {
