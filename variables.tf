@@ -64,7 +64,7 @@ variable "user_data_file" {
 }
 
 variable "user_data" {
-  type = string
+  type    = string
   default = ""
 }
 
