@@ -15,6 +15,7 @@ module "aws_fleet" {
   ami_name       = var.ami_name
 
   user_data_file = var.user_data_file
+  user_data      = var.user_data
 
   static_nodes   = var.static_nodes
   spot_nodes     = var.spot_nodes
@@ -29,8 +30,10 @@ module "aws_fleet" {
   additional_storage_iops       = var.additional_storage_iops
   additional_storage_throughput = var.additional_storage_throughput
 
-  enable_internal_api     = var.enable_internal_api
-  enable_state_channels   = var.enable_state_channels
+  enable_internal_api   = var.enable_internal_api
+  enable_state_channels = var.enable_state_channels
+  enable_mdw            = var.enable_mdw
+
   asg_target_groups       = var.asg_target_groups
   asg_suspended_processes = var.asg_suspended_processes
 

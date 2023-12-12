@@ -68,6 +68,26 @@ resource "aws_security_group_rule" "sync_in" {
   security_group_id = aws_security_group.ae-nodes.id
 }
 
+resource "aws_security_group_rule" "mdw_api_in" {
+  count             = var.enable_mdw ? 1 : 0
+  type              = "ingress"
+  from_port         = 4000
+  to_port           = 4000
+  protocol          = "TCP"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ae-nodes.id
+}
+
+resource "aws_security_group_rule" "mdw_sc_in" {
+  count             = var.enable_mdw ? 1 : 0
+  type              = "ingress"
+  from_port         = 4001
+  to_port           = 4001
+  protocol          = "TCP"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ae-nodes.id
+}
+
 resource "aws_security_group_rule" "health_check_in" {
   type              = "ingress"
   from_port         = 8080
