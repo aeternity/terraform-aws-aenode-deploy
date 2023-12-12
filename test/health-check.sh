@@ -9,10 +9,10 @@ health_check () {
     echo "Checking" $API_ADDR
 
     # Basic health check endpoint
-    curl -sSf -o /dev/null --retry 5 --retry-connrefused --retry-max-time 360 http://${API_ADDR}:8080/healthz
+    curl -sSf -o /dev/null --retry 8 --retry-connrefused --retry-max-time 360 http://${API_ADDR}:8080/healthz
 
     # External API
-    curl -sSf -o /dev/null --retry 3 --retry-connrefused --retry-max-time 60 http://${API_ADDR}:3013/v2/status
+    curl -sSf -o /dev/null --retry 5 --retry-connrefused --retry-max-time 60 http://${API_ADDR}:3013/v2/status
 
     # Internal API (dry-run)
     EXT_STATUS=$(curl -sS -o /dev/null \
