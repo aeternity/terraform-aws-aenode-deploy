@@ -9,20 +9,20 @@ health_check () {
     echo "Checking" $API_ADDR
 
     # Basic health check endpoint
-    curl -sSf -o /dev/null --retry 5 --retry-connrefused http://${API_ADDR}:8080/healthz
+    curl -sSf -o /dev/null --retry 5 --retry-connrefused --retry-max-time 360 http://${API_ADDR}:8080/healthz
 
     # External API
-    curl -sSf -o /dev/null --retry 5 --retry-connrefused http://${API_ADDR}:3013/v2/status
+    curl -sSf -o /dev/null --retry 3 --retry-connrefused --retry-max-time 60 http://${API_ADDR}:3013/v2/status
 
     # Internal API (dry-run)
-    EXT_STATUS=$(curl -sS -o /dev/null --retry 5 --retry-connrefused \
+    EXT_STATUS=$(curl -sS -o /dev/null \
         -X POST -H "Content-type: application/json" -d '{"txs": []}' \
         -w "%{http_code}" \
         http://${API_ADDR}:3113/v2/debug/transactions/dry-run)
     [ $EXT_STATUS -eq 200 ]
 
     # State Channels WebSocket API
-    WS_STATUS=$(curl -sS -o /dev/null --retry 5 --retry-connrefused \
+    WS_STATUS=$(curl -sS -o /dev/null \
         -w "%{http_code}" \
         http://${API_ADDR}:3014/channel?role=initiator)
     [ $WS_STATUS -eq 426 ]
