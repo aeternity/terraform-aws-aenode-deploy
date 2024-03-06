@@ -10,7 +10,7 @@ module "aws_deploy-test" {
 
   instance_type  = "t3.large"
   instance_types = ["m5.large", "r5.large"]
-  ami_name       = "aeternity-ubuntu-18.04-*"
+  ami_name       = "aeternity-ubuntu-22.04-v1709639419"
 
   additional_storage      = true
   additional_storage_size = 5
@@ -29,6 +29,6 @@ module "aws_deploy-test" {
     bootstrap_version = var.bootstrap_version
     vault_addr        = var.vault_addr
     vault_role        = "ae-node"
-    bootstrap_config  = "secret/aenode/config/${var.env_name}"
+    bootstrap_config  = "secret2/aenode/config/${var.env_name}"
   }
 }
