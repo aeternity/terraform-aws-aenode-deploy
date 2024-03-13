@@ -12,13 +12,13 @@ health_check () {
     curl -sSf -o /dev/null --retry 8 --retry-connrefused --retry-max-time 360 http://${API_ADDR}:8080/healthz
 
     # External API
-    curl -sSf -o /dev/null --retry 5 --retry-connrefused --retry-max-time 60 http://${API_ADDR}:3013/v2/status
+    curl -sSf -o /dev/null --retry 5 --retry-connrefused --retry-max-time 60 http://${API_ADDR}:3013/v3/status
 
     # Internal API (dry-run)
     EXT_STATUS=$(curl -sS -o /dev/null \
         -X POST -H "Content-type: application/json" -d '{"txs": []}' \
         -w "%{http_code}" \
-        http://${API_ADDR}:3113/v2/debug/transactions/dry-run)
+        http://${API_ADDR}:3113/v3/debug/transactions/dry-run)
     [ $EXT_STATUS -eq 200 ]
 
     # State Channels WebSocket API
