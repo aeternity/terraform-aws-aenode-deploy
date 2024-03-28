@@ -97,6 +97,36 @@ resource "aws_security_group_rule" "health_check_in" {
   security_group_id = aws_security_group.ae-nodes.id
 }
 
+resource "aws_security_group_rule" "app_exporter_in" {
+  count             = length(var.prometheus_cirds) > 0 ? 1 : 0
+  type              = "ingress"
+  from_port         = 9000
+  to_port           = 9000
+  protocol          = "TCP"
+  cidr_blocks       = var.prometheus_cirds
+  security_group_id = aws_security_group.ae-nodes.id
+}
+
+resource "aws_security_group_rule" "node_exporter_in" {
+  count             = length(var.prometheus_cirds) > 0 ? 1 : 0
+  type              = "ingress"
+  from_port         = 9100
+  to_port           = 9100
+  protocol          = "TCP"
+  cidr_blocks       = var.prometheus_cirds
+  security_group_id = aws_security_group.ae-nodes.id
+}
+
+resource "aws_security_group_rule" "statsd_exporter_in" {
+  count             = length(var.prometheus_cirds) > 0 ? 1 : 0
+  type              = "ingress"
+  from_port         = 9102
+  to_port           = 9102
+  protocol          = "TCP"
+  cidr_blocks       = var.prometheus_cirds
+  security_group_id = aws_security_group.ae-nodes.id
+}
+
 resource "aws_security_group_rule" "all_out" {
   type              = "egress"
   from_port         = 0

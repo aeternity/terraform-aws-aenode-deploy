@@ -81,3 +81,8 @@ variable "tags" {
 variable "config_tags" {
   type = map(string)
 }
+
+variable "prometheus_cirds" {
+  type = list(string)
+}
+
