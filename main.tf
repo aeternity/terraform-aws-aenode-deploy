@@ -36,7 +36,7 @@ module "aws_fleet" {
 
   asg_target_groups       = var.asg_target_groups
   asg_suspended_processes = var.asg_suspended_processes
-  prometheus_cirds        = var.prometheus_cirds
+  prometheus_cidrs        = var.prometheus_cidrs
 
   tags        = var.tags
   config_tags = var.config_tags

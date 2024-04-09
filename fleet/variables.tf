@@ -82,7 +82,7 @@ variable "config_tags" {
   type = map(string)
 }
 
-variable "prometheus_cirds" {
+variable "prometheus_cidrs" {
   type = list(string)
 }
 

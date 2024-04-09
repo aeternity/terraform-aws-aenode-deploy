@@ -110,7 +110,7 @@ variable "config_tags" {
   type = map(string)
 }
 
-variable "prometheus_cirds" {
+variable "prometheus_cidrs" {
   type    = list(string)
-  default = []
+  default = ["3.123.140.48/32", "3.121.48.202/32", "3.69.159.53/32"]
 }
