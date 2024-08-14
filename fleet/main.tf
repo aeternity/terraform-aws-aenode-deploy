@@ -44,6 +44,10 @@ resource "aws_instance" "static_node" {
     create_before_destroy = true
   }
 
+  metadata_options {
+    instance_metadata_tags = "enabled"
+  }
+
   tags = merge(var.config_tags, {
     Name = "ae-${var.tags.env}-static-node",
     kind = "seed",
@@ -130,6 +134,10 @@ resource "aws_launch_template" "fleet" {
     content {
       enabled = true
     }
+  }
+
+  metadata_options {
+    instance_metadata_tags = "enabled"
   }
 
   tag_specifications {
