@@ -2,7 +2,7 @@ version: 2.1
 executors:
   infrastructure_container:
     docker:
-      - image: aeternity/infrastructure:v4.3.0
+      - image: aeternity/infrastructure:v4.4.0
     working_directory: /src
 
 commands:
@@ -11,7 +11,7 @@ commands:
     parameters:
       terraform_version:
         type: string
-        default: "1.1.4"
+        default: "1.9.6"
     steps:
       - run:
           name: Setup terraform version
@@ -79,7 +79,7 @@ workflows:
   test:
     jobs:
       - integration_tests:
-          name: "Run on terraform 1.1.4"
-          terraform_version: "1.1.4"
+          name: "Run on terraform 1.9.6"
+          terraform_version: "1.9.6"
           context: ae-vault-infra
           requires: []
